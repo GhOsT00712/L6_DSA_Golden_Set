@@ -18,3 +18,7 @@ A self-contained progress tracker for a curated 120-question Google L6 DSA inter
 Open `index.html` in a browser. No installation, build process, or server is required.
 
 Progress is stored in the current browser using `localStorage`.
+
+## License
+
+Licensed under the [MIT License](LICENSE).
