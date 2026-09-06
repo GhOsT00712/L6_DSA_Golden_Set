@@ -1,0 +1,1361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A self-contained progress tracker for the 120-question Google L6 DSA curriculum.">
+  <title>L6 DSA Golden Set</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --paper: #0d1210;
+      --surface: #151c19;
+      --surface-strong: #1b2420;
+      --ink: #eef4f0;
+      --muted: #95a49d;
+      --line: #2a3832;
+      --line-strong: #3e4d46;
+      --brand: #4fc3a2;
+      --brand-dark: #b9edde;
+      --brand-soft: #183d33;
+      --accent: #ff8a66;
+      --accent-soft: #45261e;
+      --danger: #ff918a;
+      --danger-soft: #432523;
+      --shadow: 0 14px 34px rgba(0, 0, 0, .3);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 92% 0%, rgba(79, 195, 162, .12), transparent 24rem),
+        radial-gradient(circle at 0% 12%, rgba(255, 138, 102, .08), transparent 21rem),
+        var(--paper);
+      font: 15px/1.5 Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button, select, input[type="checkbox"] { cursor: pointer; }
+    a { color: inherit; }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 10px;
+      left: 10px;
+      transform: translateY(-140%);
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: white;
+      background: var(--brand-dark);
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .shell { width: min(1440px, calc(100% - 32px)); margin: 0 auto; }
+
+    .hero { padding: 34px 0 24px; }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--brand-dark);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 11px;
+      color: white;
+      background: var(--brand);
+      box-shadow: 0 7px 18px rgba(15, 107, 88, .22);
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+
+    .button {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: var(--ink);
+      background: rgba(27, 36, 32, .82);
+      font-weight: 700;
+      transition: border-color .18s, background .18s, transform .18s;
+    }
+    .button:hover { border-color: var(--brand); background: var(--surface-strong); }
+    .button:active { transform: translateY(1px); }
+    .button.danger { color: var(--danger); }
+    .button.small { min-height: 34px; padding: 6px 10px; font-size: 13px; }
+
+    .hero-copy {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      gap: 42px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 820px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(42px, 5.8vw, 78px);
+      font-weight: 500;
+      letter-spacing: -.048em;
+      line-height: .98;
+    }
+
+    .subtitle {
+      max-width: 690px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .progress-panel {
+      border: 1px solid rgba(79, 195, 162, .22);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: rgba(21, 28, 25, .88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .progress-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 11px;
+    }
+    .progress-heading strong { font-size: 16px; }
+    .progress-heading span { color: var(--muted); font-size: 13px; }
+
+    .progress-track {
+      height: 11px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #29342f;
+    }
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--brand), #36a285);
+      transition: width .35s ease;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .stat {
+      min-width: 0;
+      border-left: 1px solid var(--line);
+      padding-left: 12px;
+    }
+    .stat:first-child { border-left: 0; padding-left: 0; }
+    .stat-value { display: block; font-size: clamp(19px, 2.4vw, 28px); font-weight: 780; line-height: 1.1; }
+    .stat-label { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; letter-spacing: .03em; }
+
+    main { padding-bottom: 64px; }
+
+    .toolbar {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      border: 1px solid rgba(197, 203, 196, .9);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(21, 28, 25, .93);
+      box-shadow: 0 9px 24px rgba(27, 47, 40, .08);
+      backdrop-filter: blur(15px);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.8fr) minmax(180px, 1fr) minmax(150px, .8fr) minmax(160px, .8fr) auto auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .control {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 8px 11px;
+      color: var(--ink);
+      outline: none;
+      background: var(--surface-strong);
+    }
+    .control:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(15, 107, 88, .13); }
+    textarea.control { min-height: 112px; resize: vertical; cursor: text; }
+    input[type="number"].control { cursor: text; }
+
+    .check-filter {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 8px 11px;
+      background: var(--surface-strong);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .check-filter:has(input:checked) { border-color: var(--brand); color: var(--brand-dark); background: var(--brand-soft); }
+    input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--brand); }
+
+    .result-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 12px 2px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .result-line strong { color: var(--ink); }
+
+    .list-head, .question-row {
+      display: grid;
+      grid-template-columns: minmax(300px, 1fr) 160px 92px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .list-head {
+      padding: 22px 18px 9px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .question-card {
+      overflow: hidden;
+      margin-bottom: 9px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, .16);
+      transition: border-color .18s, box-shadow .18s, transform .18s;
+    }
+    .question-card:hover { border-color: var(--line-strong); box-shadow: 0 7px 18px rgba(0, 0, 0, .24); }
+    .question-card.priority { border-left: 4px solid var(--accent); }
+    .question-card[data-status="Solved"] { border-color: #2c765f; }
+
+    .question-row { min-height: 90px; padding: 13px 16px; }
+
+    .identity { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 12px; align-items: center; min-width: 0; }
+    .question-number {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 12px;
+      color: var(--brand-dark);
+      background: var(--brand-soft);
+      font-size: 13px;
+      font-weight: 850;
+    }
+    .priority .question-number { color: #ffc0ab; background: var(--accent-soft); }
+    .question-title {
+      display: inline;
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 760;
+      line-height: 1.3;
+      text-decoration-color: rgba(15, 107, 88, .35);
+      text-underline-offset: 3px;
+    }
+    .question-title:hover { color: var(--brand); text-decoration-color: var(--brand); }
+    .external { color: var(--brand); font-size: 12px; }
+
+    .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 21px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      color: var(--muted);
+      background: #25312c;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .badge.priority-badge { color: #ffb49b; background: var(--accent-soft); }
+
+    .field label, .mobile-label { display: none; }
+    .field .control { min-height: 38px; padding: 7px 9px; font-size: 13px; }
+    .field input[type="number"] { text-align: center; }
+
+    .status-control { font-weight: 720; }
+    .status-control[data-value="Solved"] { color: var(--brand-dark); background: var(--brand-soft); }
+    .status-control[data-value="In Progress"] { color: #875310; background: var(--warning-soft); }
+    .status-control[data-value="Needs Review"] { color: var(--danger); background: var(--danger-soft); }
+
+    .details-button[aria-expanded="true"] { border-color: var(--brand); color: var(--brand-dark); background: var(--brand-soft); }
+
+    .question-details {
+      border-top: 1px solid var(--line);
+      padding: 20px 18px 22px;
+      background: #111714;
+    }
+    .question-details[hidden] { display: none; }
+    .details-grid { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.2fr); gap: 28px; }
+    .section-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .followup-box {
+      height: 100%;
+      border: 1px solid #6d3a2c;
+      border-radius: 13px;
+      padding: 16px 18px;
+      background: linear-gradient(145deg, #221814, var(--accent-soft));
+    }
+    .followup-box h3 { margin: 0; color: #ffad91; font-family: Georgia, serif; font-size: 21px; font-weight: 500; }
+    .followup-box p { margin: 4px 0 12px; color: #c99989; font-size: 12px; }
+    .followup-box ol { margin: 0; padding-left: 20px; }
+    .followup-box li { margin: 9px 0; padding-left: 4px; }
+    .answer-details {
+      margin: 7px 0 13px;
+      border-left: 2px solid rgba(255, 173, 145, .38);
+      padding-left: 11px;
+    }
+    .answer-details summary {
+      width: fit-content;
+      color: #ffc0ab;
+      font-size: 12px;
+      font-weight: 800;
+      list-style: none;
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-color: rgba(255, 192, 171, .4);
+      text-underline-offset: 3px;
+    }
+    .answer-details summary::-webkit-details-marker { display: none; }
+    .answer-details summary::before { content: '+ '; }
+    .answer-details[open] summary::before { content: '− '; }
+    .answer-details .hide-answer-label { display: none; }
+    .answer-details[open] .show-answer-label { display: none; }
+    .answer-details[open] .hide-answer-label { display: inline; }
+    .answer-details p {
+      margin: 8px 0 0;
+      color: #f1d8cf;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .answer-details .answer-tradeoff {
+      border-top: 1px solid rgba(255, 192, 171, .2);
+      padding-top: 8px;
+      color: #ffd0c0;
+    }
+    .answer-details .answer-tradeoff strong { color: #ffb69d; }
+
+    .guidance-stack { display: grid; align-content: start; gap: 12px; }
+    .before-code-box {
+      border: 1px solid #2d715e;
+      border-radius: 13px;
+      padding: 15px 17px;
+      background: linear-gradient(145deg, #14251f, var(--brand-soft));
+    }
+    .before-code-box h3 { margin: 0 0 7px; color: var(--brand-dark); font-size: 14px; }
+    .before-code-box p { margin: 0; color: var(--ink); line-height: 1.55; }
+    .practical-followup-box {
+      border: 1px solid #5f6f38;
+      border-radius: 13px;
+      padding: 15px 17px;
+      background: linear-gradient(145deg, #202719, #29331c);
+    }
+    .practical-followup-box h3 { margin: 0 0 7px; color: #d4e99a; font-size: 14px; }
+    .practical-followup-box p { margin: 0; color: var(--ink); line-height: 1.55; }
+    .practical-followup-box small { display: block; margin-top: 8px; color: #aab98a; line-height: 1.4; }
+    .practical-followup-box .answer-details {
+      margin: 11px 0 0;
+      border-left-color: rgba(212, 233, 154, .36);
+    }
+    .practical-followup-box .answer-details summary {
+      color: #dff5a7;
+      text-decoration-color: rgba(223, 245, 167, .4);
+    }
+    .practical-followup-box .answer-details p { margin: 8px 0 0; color: #e8efd8; font-size: 13px; }
+    .practical-followup-box .answer-details .answer-tradeoff {
+      border-top-color: rgba(212, 233, 154, .2);
+      color: #e1edbd;
+    }
+    .practical-followup-box .answer-details .answer-tradeoff strong { color: #d4e99a; }
+
+    .empty {
+      display: none;
+      margin-top: 18px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      padding: 58px 20px;
+      color: var(--muted);
+      text-align: center;
+      background: rgba(255,255,255,.025);
+    }
+    .empty.show { display: block; }
+    .empty strong { display: block; margin-bottom: 4px; color: var(--ink); font-size: 18px; }
+
+    .toast {
+      position: fixed;
+      z-index: 80;
+      right: 22px;
+      bottom: 22px;
+      transform: translateY(25px);
+      max-width: min(360px, calc(100% - 44px));
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: white;
+      background: var(--brand-dark);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s, transform .2s;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .footer { padding: 0 0 36px; color: var(--muted); text-align: center; font-size: 12px; }
+
+    @media (max-width: 1180px) {
+      .filters { grid-template-columns: 2fr 1fr 1fr; }
+      .filters .check-filter { justify-content: center; }
+      .list-head, .question-row { grid-template-columns: minmax(280px, 1fr) 150px 84px; gap: 8px; }
+    }
+
+    @media (max-width: 900px) {
+      .hero-copy { grid-template-columns: 1fr; gap: 24px; }
+      .progress-panel { max-width: 680px; }
+      .list-head { display: none; }
+      #questionList { margin-top: 16px; }
+      .question-row { grid-template-columns: 1fr 1fr; gap: 11px; }
+      .identity { grid-column: 1 / -1; }
+      .field label { display: block; margin-bottom: 4px; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+      .details-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 700px) {
+      .shell { width: min(100% - 20px, 1440px); }
+      .hero { padding-top: 19px; }
+      .topline { align-items: flex-start; margin-bottom: 25px; }
+      .brand span:last-child { display: none; }
+      .actions { max-width: 235px; }
+      .button { min-height: 36px; padding: 7px 9px; font-size: 12px; }
+      h1 { font-size: clamp(38px, 13vw, 62px); }
+      .subtitle { font-size: 15px; }
+      .stats { grid-template-columns: 1fr 1fr; gap: 14px 8px; }
+      .stat:nth-child(3) { border-left: 0; padding-left: 0; }
+      .toolbar { position: static; }
+      .filters { grid-template-columns: 1fr 1fr; }
+      .filters .search { grid-column: 1 / -1; }
+      .check-filter { justify-content: flex-start !important; }
+      .question-row { grid-template-columns: 1fr 1fr; padding: 14px 12px; }
+      .identity { grid-template-columns: 42px minmax(0, 1fr); }
+      .question-number { width: 40px; height: 40px; }
+      .question-title { font-size: 15px; }
+      .question-details { padding: 17px 12px 20px; }
+    }
+
+    @media (max-width: 450px) {
+      .filters { grid-template-columns: 1fr; }
+      .filters .search { grid-column: auto; }
+      .result-line { align-items: flex-start; flex-direction: column; gap: 2px; }
+      .question-row { grid-template-columns: 1fr 1fr; }
+      .details-button { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#tracker">Skip to tracker</a>
+  <header class="hero">
+    <div class="shell">
+      <div class="topline">
+        <div class="brand"><span class="brand-mark">L6</span><span>Interview preparation</span></div>
+        <div class="actions" aria-label="Data controls">
+          <button class="button" id="exportButton" type="button">Export backup</button>
+          <button class="button" id="importButton" type="button">Restore</button>
+          <button class="button danger" id="resetButton" type="button">Reset</button>
+          <input id="importFile" type="file" accept="application/json" hidden>
+        </div>
+      </div>
+      <div class="hero-copy">
+        <div>
+          <p class="eyebrow">120-question curriculum</p>
+          <h1>L6 DSA Golden Set</h1>
+          <p class="subtitle">Ask one crisp question before coding, capture the mistake, and rehearse the constraint changes that turn a LeetCode solution into an L6 discussion.</p>
+        </div>
+        <section class="progress-panel" aria-labelledby="progressTitle">
+          <div class="progress-heading">
+            <strong id="progressTitle">Overall progress</strong>
+            <span id="progressText">0 of 120 solved · 0%</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="Questions solved" aria-valuemin="0" aria-valuemax="120" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="stats" aria-live="polite">
+            <div class="stat"><span class="stat-value" id="solvedStat">0</span><span class="stat-label">Solved</span></div>
+            <div class="stat"><span class="stat-value" id="priorityStat">0/30</span><span class="stat-label">Priority solved</span></div>
+            <div class="stat"><span class="stat-value" id="inProgressStat">0</span><span class="stat-label">In progress</span></div>
+            <div class="stat"><span class="stat-value" id="needsReviewStat">0</span><span class="stat-label">Needs review</span></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell" id="tracker">
+    <section class="toolbar" aria-label="Question filters">
+      <div class="filters">
+        <input class="control search" id="searchInput" type="search" placeholder="Search question or category…" aria-label="Search questions">
+        <select class="control" id="categoryFilter" aria-label="Filter by category"><option value="All">All categories</option></select>
+        <select class="control" id="statusFilter" aria-label="Filter by status">
+          <option value="All">All statuses</option>
+          <option>Not Started</option>
+          <option>In Progress</option>
+          <option>Solved</option>
+          <option>Needs Review</option>
+        </select>
+        <select class="control" id="sortFilter" aria-label="Sort questions">
+          <option value="curriculum">Curriculum order</option>
+          <option value="priority">Priority first</option>
+          <option value="attention">Needs attention</option>
+          <option value="updated">Recently updated</option>
+        </select>
+        <label class="check-filter"><input id="priorityFilter" type="checkbox"> ★ L6 priority</label>
+        <button class="button" id="clearFilters" type="button">Clear</button>
+      </div>
+      <div class="result-line"><span id="resultCount"><strong>120</strong> questions shown</span><span>Progress saves automatically on this browser.</span></div>
+    </section>
+
+    <div class="list-head" aria-hidden="true">
+      <span>Question</span><span>Status</span><span></span>
+    </div>
+    <section id="questionList" aria-label="DSA curriculum"></section>
+    <div class="empty" id="emptyState"><strong>No questions match.</strong>Try clearing one or more filters.</div>
+  </main>
+
+  <footer class="footer shell">Your data stays in this browser unless you export a backup.</footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    'use strict';
+
+    const categories = [
+      'Arrays, Hashing & Prefix Sums',
+      'Two Pointers & Sliding Window',
+      'Binary Search',
+      'Intervals & Sweep Line',
+      'Trees & BSTs',
+      'Heap / Priority Queue / Top-K',
+      'Graph Modeling, BFS & DFS',
+      'DAG, Topological Sort & Union-Find',
+      'Weighted Graphs & Shortest Paths',
+      'Backtracking & State-Space Search',
+      'Dynamic Programming',
+      'Greedy',
+      'Stack & Monotonic Stack',
+      'Trie & Advanced Strings',
+      'Data-Structure Design & Dynamic Queries'
+    ];
+
+    const rawQuestions = [
+      [1,'Two Sum','two-sum'],[2,'Group Anagrams','group-anagrams'],[3,'Longest Consecutive Sequence','longest-consecutive-sequence',1],[4,'Subarray Sum Equals K','subarray-sum-equals-k',1],[5,'Product of Array Except Self','product-of-array-except-self'],[6,'Continuous Subarray Sum','continuous-subarray-sum'],[7,'First Missing Positive','first-missing-positive'],[8,'Range Sum Query 2D – Immutable','range-sum-query-2d-immutable'],
+      [9,'Container With Most Water','container-with-most-water'],[10,'3Sum','3sum'],[11,'Trapping Rain Water','trapping-rain-water',1],[12,'Minimum Window Substring','minimum-window-substring',1],[13,'Longest Substring Without Repeating Characters','longest-substring-without-repeating-characters'],[14,'Permutation in String','permutation-in-string'],[15,'Max Consecutive Ones III','max-consecutive-ones-iii'],[16,'Find All Anagrams in a String','find-all-anagrams-in-a-string'],
+      [17,'Binary Search','binary-search'],[18,'Search in Rotated Sorted Array','search-in-rotated-sorted-array'],[19,'Find Minimum in Rotated Sorted Array','find-minimum-in-rotated-sorted-array'],[20,'Koko Eating Bananas','koko-eating-bananas',1],[21,'Capacity To Ship Packages Within D Days','capacity-to-ship-packages-within-d-days'],[22,'Split Array Largest Sum','split-array-largest-sum',1],[23,'Median of Two Sorted Arrays','median-of-two-sorted-arrays'],[24,'Find K Closest Elements','find-k-closest-elements'],
+      [25,'Merge Intervals','merge-intervals',1],[26,'Insert Interval','insert-interval'],[27,'Non-overlapping Intervals','non-overlapping-intervals'],[28,'Car Pooling','car-pooling'],[29,'Minimum Number of Arrows to Burst Balloons','minimum-number-of-arrows-to-burst-balloons'],[30,'My Calendar I','my-calendar-i'],[31,'Maximum Number of Events That Can Be Attended','maximum-number-of-events-that-can-be-attended'],[32,'The Skyline Problem','the-skyline-problem',1],
+      [33,'Binary Tree Level Order Traversal','binary-tree-level-order-traversal'],[34,'Validate Binary Search Tree','validate-binary-search-tree'],[35,'Kth Smallest Element in a BST','kth-smallest-element-in-a-bst'],[36,'Lowest Common Ancestor of a Binary Tree','lowest-common-ancestor-of-a-binary-tree',1],[37,'Binary Tree Maximum Path Sum','binary-tree-maximum-path-sum'],[38,'Serialize and Deserialize Binary Tree','serialize-and-deserialize-binary-tree',1],[39,'All Nodes Distance K in Binary Tree','all-nodes-distance-k-in-binary-tree'],[40,'Vertical Order Traversal of a Binary Tree','vertical-order-traversal-of-a-binary-tree'],
+      [41,'Kth Largest Element in an Array','kth-largest-element-in-an-array'],[42,'Top K Frequent Elements','top-k-frequent-elements'],[43,'Find Median from Data Stream','find-median-from-data-stream',1],[44,'Merge K Sorted Lists','merge-k-sorted-lists',1],[45,'Task Scheduler','task-scheduler'],[46,'IPO','ipo'],[47,'Smallest Range Covering Elements from K Lists','smallest-range-covering-elements-from-k-lists'],[48,'Reorganize String','reorganize-string'],
+      [49,'Number of Islands','number-of-islands',1],[50,'Max Area of Island','max-area-of-island'],[51,'Pacific Atlantic Water Flow','pacific-atlantic-water-flow'],[52,'Word Ladder','word-ladder',1],[53,'Evaluate Division','evaluate-division'],[54,'Open the Lock','open-the-lock'],[55,'Snakes and Ladders','snakes-and-ladders'],[56,'Shortest Path in Binary Matrix','shortest-path-in-binary-matrix'],
+      [57,'Course Schedule','course-schedule',1],[58,'Course Schedule II','course-schedule-ii'],[59,'Alien Dictionary — Premium','alien-dictionary',1],[60,'Accounts Merge','accounts-merge'],[61,'Redundant Connection','redundant-connection'],[62,'Number of Operations to Make Network Connected','number-of-operations-to-make-network-connected'],[63,'Min Cost to Connect All Points','min-cost-to-connect-all-points'],[64,'Critical Connections in a Network','critical-connections-in-a-network'],
+      [65,'Network Delay Time','network-delay-time',1],[66,'Cheapest Flights Within K Stops','cheapest-flights-within-k-stops',1],[67,'Path With Minimum Effort','path-with-minimum-effort'],[68,'Swim in Rising Water','swim-in-rising-water'],[69,'01 Matrix','01-matrix'],[70,'Rotting Oranges','rotting-oranges'],[71,'Minimum Obstacle Removal to Reach Corner','minimum-obstacle-removal-to-reach-corner'],[72,'Shortest Path to Get All Keys','shortest-path-to-get-all-keys'],
+      [73,'Subsets','subsets'],[74,'Permutations','permutations'],[75,'Combination Sum','combination-sum'],[76,'Word Search','word-search',1],[77,'N-Queens','n-queens',1],[78,'Sudoku Solver','sudoku-solver'],[79,'Remove Invalid Parentheses','remove-invalid-parentheses'],[80,'Partition to K Equal Sum Subsets','partition-to-k-equal-sum-subsets'],
+      [81,'House Robber','house-robber'],[82,'Coin Change','coin-change',1],[83,'Longest Increasing Subsequence','longest-increasing-subsequence'],[84,'Word Break','word-break'],[85,'Edit Distance','edit-distance',1],[86,'Distinct Subsequences','distinct-subsequences'],[87,'Burst Balloons','burst-balloons'],[88,'Regular Expression Matching','regular-expression-matching'],
+      [89,'Jump Game','jump-game'],[90,'Jump Game II','jump-game-ii',1],[91,'Gas Station','gas-station'],[92,'Partition Labels','partition-labels'],[93,'Candy','candy',1],[94,'Queue Reconstruction by Height','queue-reconstruction-by-height'],[95,'Minimum Number of Refueling Stops','minimum-number-of-refueling-stops'],[96,'Maximum Performance of a Team','maximum-performance-of-a-team'],
+      [97,'Valid Parentheses','valid-parentheses'],[98,'Min Stack','min-stack'],[99,'Daily Temperatures','daily-temperatures'],[100,'Largest Rectangle in Histogram','largest-rectangle-in-histogram',1],[101,'Maximal Rectangle','maximal-rectangle',1],[102,'Remove K Digits','remove-k-digits'],[103,'Basic Calculator','basic-calculator'],[104,'Sum of Subarray Minimums','sum-of-subarray-minimums'],
+      [105,'Implement Trie (Prefix Tree)','implement-trie-prefix-tree'],[106,'Design Add and Search Words Data Structure','design-add-and-search-words-data-structure'],[107,'Word Search II','word-search-ii',1],[108,'Replace Words','replace-words'],[109,'Palindrome Pairs','palindrome-pairs',1],[110,'Longest Duplicate Substring','longest-duplicate-substring'],[111,'Shortest Palindrome','shortest-palindrome'],[112,'Find the Index of the First Occurrence in a String','find-the-index-of-the-first-occurrence-in-a-string'],
+      [113,'LRU Cache','lru-cache',1],[114,'LFU Cache','lfu-cache',1],[115,'Insert Delete GetRandom O(1)','insert-delete-getrandom-o1'],[116,'All O`one Data Structure','all-oone-data-structure'],[117,'Time Based Key-Value Store','time-based-key-value-store'],[118,'Snapshot Array','snapshot-array'],[119,'Range Module','range-module'],[120,'Stock Price Fluctuation','stock-price-fluctuation']
+    ];
+
+    const beforeCodePrompts = [
+      "Can I return any valid pair, and may the same value appear at different indices?",
+      "What character set and case rules apply, and does the output order matter?",
+      "May I modify the input, and should duplicate values count only once?",
+      "Can values be negative, and does an empty subarray count?",
+      "May I use division, and should I account for zero values or integer overflow?",
+      "Can k be zero or negative, and must the subarray contain at least two elements?",
+      "Is O(1) extra space required, and may I rearrange the input array?",
+      "Is the matrix immutable, are coordinates inclusive, and how many queries should I expect?",
+      "Are heights always non-negative, and should I return only the area or also the indices?",
+      "Should triplets be unique, and may I sort the input?",
+      "Are heights non-negative, and do you want total trapped water or water at each index?",
+      "Are target-character counts significant, what character set applies, and what represents no window?",
+      "Should I return the length or the substring, and are characters Unicode code points?",
+      "What character set applies, and how should an empty pattern be handled?",
+      "Does 'at most k flips' include zero flips, and can k exceed the array length?",
+      "Should I return starting indices in order, and may matching windows overlap?",
+      "If duplicates exist, should I return any match, the first match, or the last match?",
+      "Can the rotated array contain duplicates, and is it guaranteed to be a valid rotation?",
+      "Can values repeat, and is the input always a non-empty rotated sorted array?",
+      "Is eating speed an integer, and may Koko switch piles within one hour?",
+      "Must package order be preserved, and is there exactly one shipment per day?",
+      "Are all numbers non-negative, and must there be exactly m non-empty contiguous parts?",
+      "Can either array be empty, and how should the median of an even total be represented?",
+      "How are equal-distance ties broken, and must the result remain sorted?",
+      "Do touching endpoints overlap, are intervals closed, and may I sort the input?",
+      "Are existing intervals already sorted and disjoint, and do touching endpoints merge?",
+      "Do touching intervals overlap, and do you want only the count or the retained intervals too?",
+      "At the same location, do drop-offs happen before pick-ups?",
+      "Does an arrow hitting an endpoint burst the balloon, and are intervals closed?",
+      "Are bookings half-open [start, end), and what should happen for an invalid range?",
+      "Can I attend at most one event per day, and are both endpoints inclusive?",
+      "How should simultaneous building edges be ordered, and should adjacent equal heights be merged?",
+      "Should the result be grouped by level, and how should a null root be represented?",
+      "Are duplicate keys allowed, and must each subtree satisfy global rather than local bounds?",
+      "Is the tree guaranteed to be a valid BST, and are duplicate keys possible?",
+      "Are both nodes guaranteed to exist, and are nodes identified by object identity or value?",
+      "Must a path contain at least one node, and do you want only the sum or the path too?",
+      "Is this an arbitrary binary tree, and must the decoder reject malformed input?",
+      "Is the target guaranteed to be in the tree, and can node values repeat?",
+      "What is the tie-break for nodes sharing a row and column, and does output order matter?",
+      "Is k always valid, may I modify the array, and is this a one-time or repeated query?",
+      "How should frequency ties be ordered, and is k no greater than the number of distinct values?",
+      "Is the stream insert-only, and how should the median of an even count be defined?",
+      "May I reuse the existing list nodes, and can any input list be empty?",
+      "Do you need only the minimum length or an actual schedule, and are tasks identified only by type?",
+      "Can I complete at most k projects, and does profit become available immediately?",
+      "Is every list sorted and non-empty, and how should equal-width ranges be tie-broken?",
+      "Is any valid arrangement acceptable, and what should I return when none exists?",
+      "Is adjacency four-directional or eight-directional, and may I mutate the grid?",
+      "Use the same grid assumptions as #49: which adjacency applies, and may I mutate cells?",
+      "Can water flow across equal heights, and does the result order matter?",
+      "Must the end word be in the dictionary, and do you want only the length or the path?",
+      "Are equations guaranteed consistent, and what result represents an unknown variable?",
+      "If the starting state is a dead end, should the answer fail immediately?",
+      "Do snakes or ladders chain within one move, and must a roll land exactly on the final square?",
+      "Are diagonal moves allowed, and what should happen when the start or end is blocked?",
+      "Which direction does each prerequisite pair represent, and do you need only feasibility?",
+      "Is any valid course order acceptable, and what should be returned if a cycle exists?",
+      "How should an invalid prefix be handled, and do you want any valid order or the smallest one?",
+      "Can account names conflict when emails connect them, and does output order matter?",
+      "Is there exactly one extra edge, and should I return the last valid answer in input order?",
+      "May any existing cable be moved, and do you want just the operation count?",
+      "Is distance Manhattan distance, and do you need only total cost or the chosen edges too?",
+      "Is the graph connected and simple, or can it contain parallel edges?",
+      "Are all edge weights non-negative, and what should represent unreachable nodes?",
+      "Does k count intermediate stops or total edges, and can source equal destination?",
+      "Are moves four-directional, and is path effort the maximum edge difference?",
+      "Are moves four-directional, and does waiting simply raise the allowed elevation?",
+      "Is at least one zero guaranteed, and may I overwrite the input matrix?",
+      "Does rotting spread only four-directionally and simultaneously once per minute?",
+      "Does removing the starting or ending obstacle count toward the cost?",
+      "How many distinct keys can appear, and must position plus collected keys define the visited state?",
+      "Can input values repeat, and should duplicate subsets be removed?",
+      "Can input values repeat, and do you need unique permutations only?",
+      "May each candidate be reused, and are all candidates positive?",
+      "Can a cell be reused, and are moves limited to four directions?",
+      "Do you want every board or only the count, and does solution order matter?",
+      "Is the starting board valid with exactly one solution, and should I modify it in place?",
+      "Are non-parenthesis characters preserved, and do you want every unique minimum-removal result?",
+      "Are values positive, and must every subset be non-empty?",
+      "Are houses arranged in a line, can values be negative, and do you need the chosen houses?",
+      "Are coins unlimited and positive, and what should represent an impossible amount?",
+      "Is the subsequence strictly increasing, and do you want its length or the sequence?",
+      "May dictionary words be reused, and do you want a boolean or an actual segmentation?",
+      "Which edit operations and costs are allowed, and do you need the edit script too?",
+      "Can the target be empty, and should a large count be returned exactly or modulo a value?",
+      "Are balloon values non-negative, and do you need only the score or the burst order?",
+      "Is this a full-string match, and are dot and star the only supported operators?",
+      "Are jump lengths non-negative, and what should an empty or single-element input return?",
+      "Is the end guaranteed reachable, and do you need only the jump count or the path?",
+      "Are gas and cost non-negative, and is any valid starting index acceptable?",
+      "Should I return partition lengths or ranges, and what character set applies?",
+      "Do equal ratings impose no ordering constraint, and do you want only the minimum total?",
+      "Is the input guaranteed valid, and is any valid reconstructed queue acceptable?",
+      "Does starting fuel already cover distance from position zero, and do you need the chosen stops?",
+      "May the team contain fewer than k engineers, and is modulo applied only to the final result?",
+      "Does the input contain only bracket characters, or should other characters be ignored?",
+      "What should pop, top, and getMin do on an empty stack?",
+      "Does only a strictly warmer day count, and do you want waiting days or actual dates?",
+      "Are heights non-negative with unit-width bars, and do you need only area or rectangle bounds?",
+      "Is the matrix rectangular and binary, and do you need only area or coordinates too?",
+      "How should leading zeros be handled, and can k equal the full digit count?",
+      "Which operators, unary signs, and parentheses are supported, and how should division round?",
+      "Should the result be modulo a value, and how should equal elements be assigned in the stack?",
+      "What character set and case rules apply, and is the empty string a valid stored word?",
+      "Does the wildcard match exactly one character, and what character set can be stored?",
+      "Can a cell be reused, may the word list contain duplicates, and does output order matter?",
+      "Should the shortest matching root win, and how are case and punctuation handled?",
+      "Are pairs ordered with distinct indices, and can words be duplicated or empty?",
+      "May duplicate substrings overlap, and is any longest answer acceptable?",
+      "May characters be added only to the front, and how should an empty string behave?",
+      "What is the expected result for an empty needle, and are indices measured in bytes or characters?",
+      "Can capacity be zero, and does get update recency?",
+      "Does get increase frequency, and is least-recently-used the tie-break within one frequency?",
+      "Are duplicate inserts rejected, must randomness be uniform, and can getRandom be called when empty?",
+      "May ties return any key, and what happens when decrement is called for a missing key?",
+      "Are timestamps strictly increasing per key, and should get return the latest value at or before the query?",
+      "Do unset positions read as zero, and exactly when is a new snapshot ID created?",
+      "Are ranges half-open, and should adjacent tracked ranges merge?",
+      "Can an existing timestamp be corrected, and what should queries do before any update?"
+    ];
+
+    const practicalFollowups = {
+      1: 'What changes if numbers arrive as a stream and the target is queried repeatedly?',
+      2: 'How would you group millions of strings across machines while keeping results deterministic?',
+      7: 'If the input is read-only and memory is limited, which requirement would you relax and why?',
+      8: 'What changes if the matrix receives updates between range-sum queries?',
+      9: 'If heights arrive as a stream, when can you safely finalize the answer?',
+      10: 'If the input is too large for one machine, how would you reason about partitioning and duplicate results?',
+      13: 'If characters arrive as a Unicode stream, what counts as one character and what state must be retained?',
+      15: 'If k changes for every query over the same array, what work could be reused?',
+      17: 'If the array lives in remote storage and each read is expensive, what would you optimize besides Big-O?',
+      18: 'If duplicate values are allowed, which search guarantee weakens and what is the worst case?',
+      21: 'If package weights change and many delivery deadlines are queried, when would you recompute or cache?',
+      23: 'If the two arrays live on separate services, how would you reduce network reads and handle one service being unavailable?',
+      26: 'If two clients insert overlapping intervals concurrently, what consistency guarantee is required?',
+      27: 'If removing different intervals has different business costs, how does the objective change?',
+      28: 'If bookings and cancellations arrive concurrently, how would you keep the capacity decision correct?',
+      30: 'How would you prevent two simultaneous booking requests from both observing the same availability?',
+      31: 'If events are revealed online, can the batch-optimal attendance result still be promised?',
+      34: 'If the tree changes while validation is running, which snapshot should the result describe?',
+      35: 'If the tree receives frequent updates and many kth-element queries, what would you precompute and invalidate?',
+      37: 'If tree depth is untrusted, what production failure can recursion cause and what guardrail would you add?',
+      39: 'If a static tree receives millions of distance queries, what reusable state is worth keeping?',
+      41: 'If values arrive continuously, when would you provide an exact kth value versus an approximate one?',
+      42: 'If frequency counts are spread across shards and one key is extremely hot, how would you combine results?',
+      45: 'If tasks have different durations and different cooldowns, which assumption behind the original greedy model changes?',
+      46: 'If capital and profit estimates can change during selection, how would you avoid executing a stale plan?',
+      47: 'If one sorted source is slow or unavailable, what ordering and completeness guarantee can you honestly provide?',
+      51: 'If heights change frequently, how would you balance result freshness against recomputation cost?',
+      53: 'If a new equation contradicts ratios already stored, what should the service do?',
+      54: 'If moves have different costs, how does the problem model and algorithm choice change?',
+      56: 'If obstacles change while a request is running, which grid snapshot should the path use?',
+      60: 'If a user requests deletion of a personal email, how should merged accounts and audit history change?',
+      61: 'If the graph contains several redundant edges, does returning one edge still satisfy the product need?',
+      63: 'If there are millions of points and an exact minimum tree misses the latency target, what approximation would be acceptable?',
+      64: 'If the graph changes frequently, how should consumers understand the staleness of reported critical connections?',
+      67: 'If many path queries share the same terrain, what should be cached and how should it be versioned?',
+      69: 'If the grid is enormous and zero cells are sparse, how would you partition work and reconcile boundaries?',
+      71: 'If obstacles have arbitrary removal costs instead of only zero or one, which assumption and algorithm change?',
+      72: 'If the number of keys no longer fits a small bitmask, would you change representation, constrain the service, or both?',
+      73: 'If n is 30 and the caller asks for every subset, what should you discuss before writing code?',
+      75: 'If candidates may be zero or negative, why might the original search fail to terminate?',
+      78: 'If a puzzle has no solution or several solutions, how should the API and resource limits respond?',
+      79: 'If the number of valid answers is enormous, how would you bound or paginate output while preserving correctness?',
+      80: 'If worst-case backtracking exceeds the request deadline, what is a safe and observable response?',
+      81: 'If house values change frequently and queries repeat, when is an index worth more than recomputation?',
+      83: 'If the sequence is an unbounded stream and the LIS must remain exact, how can state grow?',
+      84: 'If the dictionary changes during a request, which version should the answer use and cache?',
+      87: 'If n is beyond the cubic-time budget, what result can the service return honestly?',
+      88: 'If the pattern is supplied by an untrusted user, how would you prevent resource exhaustion?',
+      91: 'If fuel availability changes while the driver is en route, when should the plan be revalidated and what is the fallback?',
+      92: 'If the string is a stream, when can a partition be finalized and what metadata is needed?',
+      95: 'If stations can become unavailable and fuel has a price, how does the objective and response change?',
+      96: 'If candidates arrive continuously, when would you return an exact team versus an approximate current best?',
+      97: 'If input is streamed with unbounded nesting, which limits protect the parser?',
+      98: 'If multiple threads share the stack, which operations and returned values must be atomic?',
+      99: 'If temperatures arrive as a stream, which answers can be emitted and how are late corrections handled?',
+      103: 'If the expression is untrusted, what depth, size, overflow, and error limits belong in the contract?',
+      105: 'If trie reads and writes are concurrent, what snapshot or consistency semantics should readers receive?',
+      106: 'If wildcard queries are adversarial, what quotas and observability protect the service?',
+      108: 'If a new root dictionary rolls out while a sentence is being processed, which version should apply?',
+      110: 'If a rolling hash can collide, when must a candidate match be verified exactly?',
+      112: 'If the haystack arrives in chunks, how would you handle a match that crosses a chunk boundary?',
+      115: 'If operations are concurrent, what must be atomic so getRandom remains uniform over the visible set?',
+      117: 'If timestamps arrive out of order or are corrected, what consistency should get provide?',
+      118: 'How do retention and compaction affect old snapshot reads and memory usage?',
+      119: 'If updates and queries are concurrent, what consistency should a range query observe?',
+      120: 'If an old timestamp is corrected after queries were served, how would you version current, minimum, and maximum results?'
+    };
+
+    const practicalFollowupAnswers = {
+      1: 'For a single target, keep a frequency map and check each arriving value against target minus value. If clients can ask many different targets later, the raw values or a richer index must be retained because one complement map is no longer enough. Define whether queries cover all history or a bounded window, and expire old counts for a windowed service. Trade-off: retaining values supports flexible exact queries but grows memory; precomputing pair sums speeds reads but can require quadratic space.',
+      2: 'Normalize each string and create a canonical signature, such as its sorted characters or character counts. Route identical signatures to the same worker, then sort member IDs and group keys before publishing so retries and different worker timing do not change the output. A very common signature may need salting and a second merge stage to avoid one overloaded worker. Trade-off: sorting signatures is simple but costs more CPU; count-based signatures are faster for a fixed alphabet but less general.',
+      7: 'The usual constant-space solution temporarily rearranges the array, so a read-only input removes that option. With extra memory, use a bitmap or hash set; with very little memory, scan the value range in buckets over multiple passes or use external storage. I would explicitly relax either the one-pass time goal or the constant-space goal because all three guarantees cannot generally be kept together. Trade-off: a bitmap is fast and predictable but uses linear space, while repeated scans save memory but increase reads and latency.',
+      8: 'An immutable prefix-sum table is no longer sufficient because one cell update affects a large suffix of the table. Use a two-dimensional Fenwick tree or segment tree so both updates and range queries take logarithmic time, and attach every result to a matrix version if reads and writes overlap. If updates are rare, rebuilding the prefix table in batches may still be simpler. Trade-off: dynamic indexes make updates cheap enough for online use but use more memory and are harder to implement than periodic rebuilding.',
+      9: 'A newly arriving right boundary can form a better container with any earlier height, so the exact global maximum cannot safely be declared before the stream ends or a window closes. The service can publish a provisional best-so-far result and retain the required history, or define fixed windows and finalize each window at its watermark. If memory is bounded, it must accept approximation or restrict input properties. Trade-off: waiting gives an exact final answer, while provisional or approximate results reduce latency and memory but may later change.',
+      10: 'Partition by value ranges or sorted blocks, but give every valid triple one canonical owner so triples spanning partitions are neither missed nor emitted more than once. Workers need boundary or complement data from other partitions, which usually creates a shuffle; extremely frequent values require special handling to prevent skew. Deduplicate by the sorted value triple, not by worker arrival order. Trade-off: broadcasting small summaries simplifies matching but increases network use, while a full shuffle scales data volume better but adds coordination and latency.',
+      13: 'First define a character as a Unicode grapheme cluster if the product means a user-visible symbol, rather than a byte or code point. Keep the current window, the last seen position for each cluster, and enough decoder state for a cluster split across input chunks. For an unbounded stream, report results per declared window or keep a running best while allowing the active-state map to grow with distinct characters. Trade-off: grapheme-aware processing matches user expectations but costs more CPU and library complexity than byte-based processing.',
+      15: 'The normal sliding window is excellent for one value of k, but it does not create an index that answers every k cheaply. For repeated queries, store the positions of zeros and compute runs from gaps, cache results for popular k values, or precompute all k only when the array is small enough. Version the cache if the array changes. Trade-off: caching keeps the simple linear algorithm and pays only for requested k values, while full preprocessing gives fast queries but can take quadratic work and storage.',
+      17: 'When each array access is remote, round trips and tail latency matter more than the comparison count alone. Fetch a small block around each midpoint, cache blocks already read, and use asynchronous prefetch only when the next search region is predictable. The API should pin a data version so blocks cannot come from different array snapshots. Trade-off: larger block reads reduce network round trips but transfer unused data; single-value reads minimize bandwidth but can make latency dominate.',
+      18: 'Duplicates can make the left, middle, and right values equal, so the algorithm may be unable to identify which half is sorted. It can safely shrink an ambiguous boundary and continue, but an input containing mostly one value can force linear time. I would state that logarithmic time is expected for typical inputs, not guaranteed with unrestricted duplicates. Trade-off: accepting duplicates broadens the contract but weakens worst-case performance; requiring distinct values restores the logarithmic guarantee.',
+      21: 'Treat each weight list as an immutable version and cache the minimum capacity by deadline for versions that receive repeated queries. A weight edit invalidates that version; for small or infrequent changes, recompute rather than maintain a complicated incremental structure. If the edit is not yet committed, readers should stay on the previous complete version. Trade-off: versioned caching gives simple, correct repeated reads but may recompute after every update; incremental indexes help only when update and query volume justify their complexity.',
+      23: 'Use the partition-based median search because it needs only logarithmically many indexed reads from the smaller array, and fetch nearby values together to reduce calls. Pin both services to named snapshots; otherwise the combined arrays may change during the search and no longer be sorted as one logical input. If either snapshot is unavailable, return a clearly labeled unavailable or stale result rather than inventing an exact median. Trade-off: replicas or cached snapshots improve availability but consume storage and can return older data.',
+      26: 'If the product promises that no overlap is ever visible, the read-check-merge-write sequence must be one atomic operation against a versioned interval set. A transaction, per-resource lock, or compare-and-swap retry can provide that guarantee, and request IDs make retries idempotent. If eventual consistency is acceptable, conflicting inserts may be reconciled later but clients must see a pending state. Trade-off: strong consistency prevents double booking but reduces write availability and throughput during contention.',
+      27: 'Once removals have different costs, minimizing the number removed is the wrong objective. Assign each interval the value saved by keeping it, sort by end time, and use weighted interval scheduling to maximize retained value; the removal cost is total value minus retained value. The API should define how equal endpoints and negative or mandatory values behave. Trade-off: dynamic programming finds the global optimum but uses more time and state than the original greedy rule.',
+      28: 'Store each booking or cancellation as an idempotent event and apply it atomically to the affected route segments. The reservation succeeds only if the resulting occupancy stays within capacity for every segment; a transaction, serialized partition, or versioned compare-and-swap prevents two writers from both passing the same check. Cancellations must reference the original booking so retries cannot subtract twice. Trade-off: serializing by route makes correctness clear but can create a hot partition for a popular route.',
+      30: 'Availability checking and insertion must occur in the same atomic operation. A practical design uses a transaction with serializable isolation, a lock scoped to one calendar, or a compare-and-swap on the calendar version followed by a retry. Give each request an idempotency key so a client retry does not create two reservations. Trade-off: coarse locking is simple but limits concurrency; optimistic retries scale reads better but perform poorly when many requests compete for the same time range.',
+      31: 'No online algorithm can always match the batch optimum when future events are unknown, because accepting an event now may block a much better opportunity revealed later. I would either state an online heuristic and its guarantee, buffer events until a watermark or look-ahead window, or run the optimization after the full batch closes. Results should be labeled provisional while input is still open. Trade-off: buffering improves decisions but adds delay, while immediate decisions are responsive but may be suboptimal.',
+      34: 'Validate one immutable tree version from root to leaves and return that version with the result. Updates should build a new version or use copy-on-write nodes, so a reader never combines old and new subtrees. If validation is a gate before an update, commit only when the expected version still matches. Trade-off: snapshot isolation makes the answer reproducible but retains old nodes temporarily and may require retries when writes are frequent.',
+      35: 'Augment every node with its subtree size, which lets a kth-element query choose left or right in tree height time. An insertion or deletion updates sizes along its path, and a balanced tree keeps both operations logarithmic; readers should use a consistent version during concurrent changes. Rebuild if validation detects incorrect metadata. Trade-off: the index makes repeated queries fast but increases write cost and creates metadata that must remain consistent.',
+      37: 'Recursing once per tree level can exhaust the process stack on a malicious or highly skewed tree, causing a crash rather than a normal request failure. Use an explicit heap-allocated stack, reject inputs beyond documented node or depth limits, and enforce request memory and time budgets. Record limit failures separately from invalid trees. Trade-off: iterative traversal is safer for untrusted depth but is more verbose and still needs a total-node limit to bound memory.',
+      39: 'For a static tree, build parent pointers, depth information, and compact adjacency once so each query can expand in every direction without rebuilding the graph. Cache hot target-and-distance pairs, but remember that returning r nodes already costs at least O(r), so an index cannot eliminate output work. More advanced depth or centroid indexes are worthwhile mainly for count queries or very high query volume. Trade-off: preprocessing lowers repeated-query latency but adds memory and publication time.',
+      41: 'For a fixed small k, a min-heap of k values gives an exact answer with bounded state. If k changes arbitrarily or the service needs many quantiles over an unbounded stream, exact answers can require retaining a large fraction of the data; a quantile sketch provides bounded memory with an explicit error guarantee. Windowed queries also need expiry support. Trade-off: exact heaps are easy to explain but specialized, while sketches scale broadly but return approximate values.',
+      42: 'Count locally, then combine candidates with enough count bounds to prove the global top k; simply merging each shard top k can miss a value that is moderately frequent everywhere. Salt an extremely hot key across counters and aggregate it in a second stage, or use a heavy-hitter sketch when approximation is allowed. Publish the window and error guarantee with the result. Trade-off: exact aggregation increases network traffic, while sketches and salting reduce hotspots but add approximation or a merge step.',
+      45: 'The original greedy formula assumes unit-duration tasks and one shared cooldown rule per task type. Different durations or cooldowns turn placement into a richer scheduling problem where the most frequent type alone no longer determines idle time, and some variants are computationally hard. I would define the objective and use a priority-queue heuristic, dynamic programming for small bounds, or an optimizer for offline plans. Trade-off: heuristics scale but may not be optimal; exact optimization gives stronger answers at much higher cost.',
+      46: 'Choose projects from a named estimate snapshot, but revalidate capital, profit, and eligibility immediately before committing each real investment. Reserve required capital atomically, and if the version changed, recompute the remaining plan rather than continuing with stale assumptions. Keep the original estimate and final outcome for audit. Trade-off: revalidation protects correctness but adds latency and can cause retries; locking every estimate would be more stable but would block updates and reduce throughput.',
+      47: 'Define a watermark for each source. The merger can safely emit only values below the minimum watermark across all required sources; if one source stalls, either apply backpressure or switch to a degraded mode that clearly marks ordering and completeness as partial. Deduplicate retried records using stable IDs. Trade-off: waiting preserves a global order but lets one slow source block everyone, while degraded output stays available but cannot claim completeness.',
+      51: 'Publish reachability for a named height-map version. If edits are rare or widespread, recompute from both oceans because it is simple and predictable; if small edits are frequent, update only the affected dependency region and periodically run a full rebuild to correct drift. Readers can choose the newest complete snapshot or a labeled provisional one. Trade-off: incremental repair improves freshness for small changes but is complex and can approach full recomputation in the worst case.',
+      53: 'A weighted union-find can compare a new ratio with the ratio already implied between the two variables. If they disagree beyond a documented floating-point tolerance, reject or quarantine the new equation, preserve its provenance, and keep the last valid graph version available to readers. Do not silently overwrite earlier facts. Trade-off: strict rejection preserves a consistent model but may reduce availability when real data is noisy; allowing tolerances accepts noise but can hide small systematic errors.',
+      54: 'Once moves have different non-negative costs, the graph is no longer unweighted, so ordinary BFS no longer guarantees the cheapest route. Use Dijkstra, or A-star when an admissible heuristic can reduce explored states, and return both total cost and the move sequence. Negative costs would require a different contract or algorithm and can introduce cycles. Trade-off: Dijkstra is broadly correct and simple, while A-star can be faster but depends on a sound heuristic.',
+      56: 'A path request should pin one immutable obstacle-grid version and compute entirely against it. If the path will drive a real action, revalidate the changed cells or the full route just before execution and replan when the version is stale; keep a safe stop or no-route fallback. Trade-off: snapshot reads are reproducible and scalable, but the route may age immediately, while continuously locking the grid would be fresher but impractical.',
+      60: 'Represent accounts as a versioned identity graph with source records and provenance. Deleting an email removes or tombstones its node and edges, then recomputes the affected connected component because union-find can merge efficiently but cannot split an existing component. Audit records should retain only the legally permitted minimal event metadata, protected from normal reads. Trade-off: recomputing one component is correct and privacy-friendly but can be expensive for a very large merged identity.',
+      61: 'With several redundant edges, returning an arbitrary single edge may not meet a product that needs a valid tree, all cycle-causing links, or the cheapest repair plan. Build a spanning forest and classify every non-tree edge, then apply a stated objective such as minimum removals, maximum retained weight, or a deterministic tie-break. Trade-off: returning all evidence supports repair and audit but increases output and may require weighted optimization beyond basic union-find.',
+      63: 'For points in a geometric space, first build a sparse candidate graph using spatial buckets, nearest-neighbor search, or clustering, then compute an MST on those candidate edges. Measure the result against exact solutions on representative smaller samples and publish an error or quality bound when possible. If no acceptable bound exists, run exact computation asynchronously. Trade-off: sparsification cuts latency and memory dramatically but can miss an important long-range edge and lose optimality.',
+      64: 'Compute critical connections from an immutable graph snapshot and return the snapshot version and age with every result. For frequent changes, publish periodic recomputations or incrementally maintain connectivity only if latency requirements justify the much greater complexity; trigger an early rebuild after high-impact changes. Consumers must decide whether stale data is advisory or unsafe. Trade-off: batch snapshots are robust and auditable but stale between runs, while dynamic maintenance is fresher but harder to recover and verify.',
+      67: 'For a static terrain, build a minimum spanning tree because the maximum edge on the tree path between two cells equals their minimum possible effort. Preprocess that tree for lowest-common-ancestor queries while storing the maximum edge on each jump, then answer repeated pairs quickly. Key the index by terrain version and rebuild or replace it after updates. Trade-off: substantial preprocessing makes repeated queries fast, but a one-off query is usually cheaper with direct Dijkstra or binary search.',
+      69: 'Start multi-source BFS from the sparse zero cells and assign grid tiles to workers. Workers exchange improved boundary distances until no frontier changes remain; each cell keeps the minimum distance seen, so repeated messages are safe. Version the input and checkpoint frontier progress for recovery. Trade-off: bulk-synchronous boundary rounds are simple and correct but can be slowed by the busiest tile, while asynchronous propagation is faster but harder to determine as complete.',
+      71: 'Zero-one BFS depends on every edge cost being exactly zero or one. With arbitrary non-negative removal costs, use Dijkstra and store the best total cost per cell; A-star is optional if there is a lower-bound heuristic. Also define overflow and blocked-cell behavior. Trade-off: Dijkstra handles the broader contract correctly but replaces constant-time deque operations with priority-queue work, increasing time and memory.',
+      72: 'A dynamic bitset can represent more keys, but it does not remove the exponential number of possible collected-key sets. Before implementation, set a maximum key count and state budget, simplify unreachable or equivalent keys, and move oversized requests to an offline planner or return a bounded approximation if the product permits it. Trade-off: wider representations increase functional range, but explicit limits are still necessary because exact search can grow as two to the number of keys.',
+      73: 'Thirty elements have over one billion subsets, so the output itself is the main constraint. Ask why the caller needs every subset; usually filters, counts, sampling, or an iterator are more useful. If enumeration is truly required, stream results in deterministic mask order with a resumable cursor and strict quotas rather than building them in memory. Trade-off: pagination bounds each response, but producing the complete set still takes exponential total time and cost.',
+      75: 'Unlimited reuse of zero creates infinitely many indistinguishable additions, and positive-negative cycles can produce infinitely many combinations for the same target. Restore a finite search space by requiring positive candidates, limiting how often each candidate may be used, or imposing a maximum length or cost. State that choice in the API. Trade-off: these constraints guarantee termination but change which mathematical combinations are considered valid.',
+      78: 'Return a structured status such as solved, no solution, multiple solutions, invalid puzzle, or resource limit, plus a solution only when appropriate. To prove uniqueness, continue searching after the first solution until a second is found or the space is exhausted. Enforce node, time, and memory limits and allow long checks to run asynchronously. Trade-off: uniqueness and impossibility proofs provide stronger answers but can take far longer than finding one solution.',
+      79: 'First cap the number of returned strings and define deterministic ordering. Generate results lazily, deduplicate by state, and provide a continuation token that captures a versioned search frontier; if an exact total is required, compute it as a separate job. Never label a truncated page as the complete answer. Trade-off: pagination protects memory and response size, but maintaining a correct resumable frontier is more complex and total enumeration remains exponential.',
+      80: 'Make the search cancellation-aware and check a deadline or expanded-state budget at safe points. Return distinct outcomes for found solution, proven impossible, and unknown because the resource limit was reached; include progress metrics and a job ID if the search continues offline. A heuristic partial partition must never be reported as exact. Trade-off: hard limits protect the service and make latency predictable, but some solvable inputs return an inconclusive result.',
+      81: 'For frequent point updates and whole-array queries, a segment tree can store a small dynamic-programming summary for each segment, including whether its left and right endpoints are selected. Parent summaries combine those boundary states, giving logarithmic updates and fast root queries. Use immutable versions or locks for concurrent readers. Trade-off: the index improves repeated workloads but is much more complex than a linear pass and uses additional memory.',
+      83: 'The patience-sorting tails array has one entry per current LIS length, so an exact answer can require memory growing linearly with the stream. A bounded value domain allows a Fenwick or segment tree over values, but its size still follows that domain; otherwise use windows or an approximation with a stated error. Trade-off: exactness for arbitrary unbounded streams has unavoidable state growth, while bounded summaries control memory by weakening scope or accuracy.',
+      84: 'Build each dictionary as an immutable version and pin one version when the request starts. Include that version in cache keys and response metadata, then deploy a new dictionary beside the old one and switch only new requests to it. Retire old versions after in-flight readers and retention windows finish. Trade-off: snapshot consistency prevents mixed answers and makes rollback easy, but overlapping versions temporarily consume more memory.',
+      87: 'If cubic dynamic programming exceeds the budget, return either an asynchronously computed exact result or a clearly labeled heuristic lower bound with no optimality claim. Practical heuristics can choose promising burst orders, decompose around low-impact boundaries, or use beam search, then compare against exact solutions on small samples. Trade-off: heuristics provide timely useful plans but may miss the optimum; exact jobs preserve correctness but have unpredictable cost.',
+      88: 'Use a polynomial-time dynamic-programming or automaton-based matcher for the supported syntax instead of a backtracking engine vulnerable to catastrophic behavior. Limit input length, pattern length, repetition structure, memory, and deadline, validate syntax before execution, and expose rejected-versus-no-match separately. Trade-off: a restricted safe regex language protects shared capacity but may reject features users expect from full regex engines.',
+      91: 'Plan against a timestamped fuel snapshot, then revalidate the next station before committing to pass the last safe alternative. Maintain a reserve buffer and fallback choices; if data becomes unavailable, stop at a known reachable station rather than trusting an optimistic stale plan. Replan only at safe checkpoints to avoid constant churn. Trade-off: conservative buffers and revalidation reduce stranding risk but can add stops, cost, and latency.',
+      92: 'A partition is final only after the system knows that none of its characters will appear later. For a finite object, make one pass to record last positions and a second to emit partitions; for a true stream, require an end marker, bounded window, or source-provided last-occurrence metadata. Otherwise exact early finalization is impossible. Trade-off: buffering or a first pass gives correctness but adds storage and delay, while early emission needs a stronger input contract.',
+      95: 'Adding fuel price changes the objective from fewest stops to minimum monetary cost, and station outages make availability time-dependent. Model state using position and fuel, use dynamic programming or shortest-path search over feasible fuel states, and revalidate or reserve critical stations before travel. Return a fallback route when the optimum disappears. Trade-off: richer state produces realistic plans but greatly increases computation and depends on fresh external data.',
+      96: 'The exact offline algorithm relies on considering engineers in sorted efficiency order, which an arbitrary stream does not provide. Publish a provisional best using bounded candidate heaps or summaries, checkpoint the stream, and compute the exact answer when the window closes or by an offline sorted job. Label the version and completeness. Trade-off: summaries provide fresh bounded-cost estimates but may discard a candidate needed by the final optimum.',
+      97: 'Parse iteratively with an explicit stack and enforce maximum input bytes, nesting depth, token count, and processing time. Reject malformed closing tokens immediately, stop cleanly on limit violations, and report structured errors without echoing sensitive input. Apply per-tenant quotas for many concurrent streams. Trade-off: limits prevent memory exhaustion and stack crashes, but deeply nested inputs that are mathematically valid may be rejected by the service contract.',
+      98: 'Push must add both the value and its minimum metadata atomically; pop must remove them together; top and getMin must observe one consistent stack state. A single mutex around each operation is the clearest linearizable design, with documented behavior for empty stacks. A lock-free design needs careful versioning to avoid ABA and reclamation bugs. Trade-off: locking is simple and correct but can bottleneck heavy contention, while lock-free code is harder to prove and operate.',
+      99: 'Keep a monotonic stack of unresolved temperatures. When a warmer event arrives, emit answers for entries it resolves; entries still on the stack remain provisional until an end marker or watermark, when they can receive zero. Late corrections should create a new result version and recompute the affected window. Trade-off: immediate emissions reduce latency, but allowing late data requires retained state and correction events.',
+      103: 'Tokenize first, then use an iterative parser or an explicitly bounded recursive parser. Limit expression bytes, tokens, nesting depth, execution time, and numeric magnitude; define overflow, division, invalid syntax, and unsupported operators as structured errors. Never allow the expression to invoke host-language evaluation. Trade-off: strict limits and a small grammar make the calculator safe and predictable but reduce compatibility with arbitrary expressions.',
+      105: 'For read-heavy traffic, publish an immutable trie root and apply writes with copy-on-write paths; each reader captures one root and therefore sees one complete version without locking. A read-write lock is simpler when the trie is smaller or writes are rare. Retain old roots only while readers need them. Trade-off: copy-on-write gives fast consistent reads but creates allocation and cleanup work, while locking uses less memory but can pause readers.',
+      106: 'Limit pattern length, wildcard count, result count, nodes visited, and request duration, with stricter per-tenant quotas under concurrency. Add cancellation and report metrics such as branches explored, timeouts, and highest wildcard depth so abusive patterns are visible. Cache only bounded, versioned results. Trade-off: quotas keep latency and capacity predictable but can reject legitimate broad searches, which should receive a clear limit response rather than a false no-match.',
+      108: 'Pin the immutable root-dictionary version at the start of sentence processing and use it for every token. Include the version in cache keys and results, deploy new versions side by side, and switch only new requests after validation. A retry may deliberately choose the latest version or repeat the original one according to the API contract. Trade-off: consistent versioning avoids mixed replacements but delays full rollout and temporarily duplicates dictionary memory.',
+      110: 'Treat a hash match only as a candidate and compare the actual substring characters before returning it. Two independent hashes reduce collision probability and can reduce expensive comparisons, but they do not provide a mathematical correctness guarantee unless the final comparison is performed. Pin the source text version during verification. Trade-off: exact verification adds work for candidates but prevents a rare collision from becoming a wrong result.',
+      112: 'Keep either the last pattern-length-minus-one characters from the previous chunk or, more efficiently, the current KMP automaton state. Continue offsets across chunks and preserve partial Unicode decoder state so neither a match nor a character is split incorrectly. Empty patterns and final incomplete sequences need explicit behavior. Trade-off: overlap buffering is simple but rereads data, while KMP state uses constant extra memory but requires more careful implementation.',
+      115: 'The array, value-to-index map, swap-on-delete, and random selection must share one atomic visibility boundary. A single lock around insert, delete, and getRandom ensures the sampled index belongs to one consistent set; define whether a call linearizes before or after a concurrent update. Use a suitable random generator and avoid modulo bias. Trade-off: one lock is easy to reason about but limits parallelism, while sharded sets improve throughput but make globally uniform sampling harder.',
+      117: 'Store timestamped versions in an ordered index rather than assuming append order. Define get as the newest committed value whose event timestamp is at or before the query, and decide whether a correction replaces the old version or creates a new revision visible only after its commit point. Return revision metadata when audit matters. Trade-off: ordered versioning supports late data and reproducible reads but costs more than appending to a sorted array.',
+      118: 'Store periodic materialized checkpoints plus compact deltas between them, and publish a minimum retained snapshot ID. Compaction may merge deltas only after active readers no longer need the old representation; reads older than the retention boundary should return an explicit expired-snapshot result. Pinning important snapshots can override normal expiry. Trade-off: aggressive compaction saves memory and speeds current reads but increases write work and removes historical access.',
+      119: 'A range query should observe one interval-set version from start to finish. Serialize updates per module or publish copy-on-write interval-tree roots so readers can use snapshot isolation without seeing half of a merge or split. Include the version in the response if clients coordinate decisions. Trade-off: snapshot or linearizable reads give clear correctness but add synchronization and retained versions; eventual reads scale more easily but may briefly reflect stale coverage.',
+      120: 'Append the correction as a new event that references the old timestamp and assign a monotonically increasing revision. Maintain the active price per timestamp and version current, minimum, and maximum views together; lazy heaps may keep stale entries but must verify each top against the active map before answering. Historical queries pin a revision. Trade-off: append-only revisions are auditable and concurrency-friendly but retain more metadata and require compaction of stale index entries.'
+    };
+
+    const followups = {
+      3: ['A fraud service tracks the longest consecutive activity streak per account from an event stream. What state and API would you design?', 'The events are duplicated, late, and spread across shards. How would you preserve correctness?', 'When would you choose an exact result over an approximate one, and how would you monitor the trade-off?'],
+      4: ['Suppose this powers an anomaly service that counts periods whose net change equals k. What are the request and window semantics?', 'How would you support many tenants and high-cardinality streams without unbounded memory?', 'How would you handle late events, integer overflow, and reconciliation with batch results?'],
+      11: ['Suppose this estimates drainage capacity from elevation profiles. Which real-world assumptions must the API make explicit?', 'A profile is too large for one machine. How would you partition the computation without losing boundary context?', 'Would you reuse this 1-D solution for flood risk on real 2-D terrain? Explain the production trade-off.'],
+      12: ['Design a document-search API that returns the smallest excerpt containing all requested terms. What semantics need clarification?', 'How would the design change for very large documents and repeated queries?', 'How would you cache and rank results across a distributed document corpus while keeping them fresh?'],
+      20: ['Treat the answer as the minimum worker rate needed to meet an SLA. How would you expose and validate the capacity-planning API?', 'What changes if each feasibility check invokes an expensive simulator or remote service?', 'How would you protect the binary-search decision when production measurements are noisy or not perfectly monotonic?'],
+      22: ['Use this algorithm to split an ordered workload across m workers. What does the load model need to capture?', 'Workload changes continuously. When would you recompute globally versus use an online balancing heuristic?', 'How do skew, state-transfer cost, and stable assignments change the “minimum maximum load” objective?'],
+      25: ['Design an API that consolidates reservation or maintenance windows. Which interval semantics are part of the contract?', 'Intervals arrive continuously and sometimes late. How would you combine streaming and batch reconciliation?', 'When would you use an online interval index instead of periodically sorting and merging a batch?'],
+      32: ['Suppose skyline points represent a capacity envelope from overlapping deployments. What would the service return and why?', 'Events can arrive out of order and be corrected. How would you maintain a versioned materialized view?', 'How would you compress, cache, and audit the result so downstream consumers receive consistent change points?'],
+      36: ['Design a shared-ancestor service for an organization or resource hierarchy. What are its identity and versioning semantics?', 'The hierarchy is mostly static but receives millions of queries. Which preprocessing trade-off would you choose?', 'How would hierarchy moves affect caches, in-flight queries, and consistency guarantees?'],
+      38: ['Design a durable, versioned format for storing a large hierarchy. How will it evolve without breaking old readers?', 'How would you stream, checkpoint, and resume encoding or decoding a tree too large for memory?', 'How would you defend the decoder against corruption, malicious input, and resource exhaustion?'],
+      43: ['Design a telemetry service that reports median and percentile values. When must results be exact?', 'How would you aggregate percentiles across many shards with bounded network cost?', 'How should windowing, late data, deletion, and accuracy metrics appear in the service contract?'],
+      44: ['Design a service that merges time-ordered logs from many shards. What ordering guarantee can it honestly provide?', 'How would you manage slow shards, retries, duplicates, backpressure, and bounded concurrency?', 'When would a heap merge, pairwise merge, or upstream pre-aggregation be the best production choice?'],
+      49: ['Suppose this identifies connected regions in a raster or map-processing pipeline. What data semantics must be defined first?', 'The raster is distributed by tiles. How would you reconcile components that cross tile boundaries?', 'The map receives edits. When would you rebuild in batch versus maintain connectivity incrementally?'],
+      52: ['Suppose words represent valid migration states. How would you design a service that returns a shortest safe transition plan?', 'How would you index a large, frequently queried transition dictionary and keep it fresh?', 'What limits, caching, and explanation data would you add so worst-case searches are safe in production?'],
+      57: ['Design a dependency service for builds or deployments. What should it return when scheduling is impossible?', 'Dependencies change continuously. When is incremental cycle detection worth the operational complexity?', 'How would you keep the graph consistent when different teams own and update different dependencies?'],
+      59: ['Suppose this infers ordering constraints from observed records. How would you expose confidence and invalid input?', 'Constraints arrive over time. When is it safe to publish a new ordering version?', 'How would you make results deterministic, auditable, and useful when constraints contain a cycle?'],
+      65: ['Design a service that estimates propagation latency through a network. What do nodes, weights, and freshness mean?', 'How would you serve repeated shortest-path queries while topology and weights change?', 'If the graph is distributed, where would you place computation and how would you handle stale or partial data?'],
+      66: ['Design a route-planning API with a hop limit. Which business rules belong in the state model?', 'How would you scale repeated route queries across many origins, destinations, and stop limits?', 'Fare feeds are delayed and sometimes corrected. What consistency, caching, and fallback behavior would you provide?'],
+      76: ['Suppose this scans a spatial grid for configured patterns. What product constraints keep the search well-defined?', 'How would you serve many pattern sets and grid versions without rebuilding everything?', 'How would you partition large grids and enforce latency limits for worst-case searches?'],
+      77: ['Treat this as a generic constraint-solving service. How would you separate domain rules from the search engine?', 'How would you parallelize expensive searches while avoiding duplicate work and severe load imbalance?', 'What checkpointing, quotas, determinism, and observability would make the solver operable?'],
+      82: ['How would you design a change or payment-planning service where denominations have inventory, fees, or policy constraints?', 'How would you support many repeated amount queries while denomination rules change over time?', 'What should happen when inventory changes concurrently or no exact solution exists?'],
+      85: ['Design a fuzzy-matching or deduplication service based on edit distance. Which normalization and cost rules matter?', 'How would you search a large corpus without comparing every pair of strings?', 'How would you expose match explanations, thresholds, Unicode handling, and model-version changes?'],
+      90: ['Suppose this models minimum recovery actions across ordered checkpoints. What would the planning API return?', 'Inputs change in real time. When would you recompute, cache, or serve a slightly stale plan?', 'How would deterministic paths, explanation data, and validation improve production safety?'],
+      93: ['Suppose this is a resource-allocation service with local fairness rules. How would you define the policy precisely?', 'Would you process allocations as a stream or a batch, and what latency-versus-optimality trade-off follows?', 'How would you make allocations stable, explainable, and auditable when ratings change?'],
+      100: ['Suppose this finds the largest sustained-capacity interval in a metric stream. What does a bar represent?', 'How would you process, checkpoint, and recover an unbounded stream?', 'How would late corrections and changing heights affect recomputation and freshness guarantees?'],
+      101: ['Suppose this finds the largest healthy block in an availability matrix. What operational decision uses the result?', 'Rows arrive from distributed sources. How would you order, window, and process them with bounded memory?', 'How would late cell corrections affect exactness, recomputation cost, and published versions?'],
+      107: ['Design a grid-scanning service with a versioned dictionary of patterns. How would dictionaries be deployed and rolled back?', 'How would you partition boards while handling matches that cross worker boundaries?', 'What pruning, quotas, deduplication, and metrics would protect the service from pathological inputs?'],
+      109: ['Would palindrome-pair matching be an online service, an offline indexing job, or a specialized feature? Defend the choice.', 'How would you partition and update an index containing millions of words?', 'How would duplicates, empty strings, deletions, and privacy requirements affect correctness and storage?'],
+      113: ['Design an LRU cache service API. Which consistency, eviction, and TTL semantics must be explicit?', 'How would you shard it, handle hot keys, and recover after a node failure?', 'How would you prevent cache stampedes and observe whether the cache is actually helping?'],
+      114: ['When would LFU outperform LRU in production, and when would its historical frequency become harmful?', 'How would you approximate frequency across shards while allowing popularity to decay?', 'How would TTL, tie-breaking, metadata overhead, and failover affect the design?']
+    };
+
+    const followupAnswers = {
+      3: [
+        'I would route every activity event for one account to the same logical owner. That owner stores disjoint intervals such as [1,4] and [7,9]; when day 5 arrives, it extends the first interval, and day 6 joins both intervals into [1,9]. The write API should be idempotent, and the read API should return the streak together with the event-time watermark used. Trade-off: exact intervals are easy to explain but memory grows with the number of distinct activity periods.',
+        'Give every event a stable ID so retries can be ignored, and use event time rather than arrival time to place it. A watermark says how long the service waits for late data before publishing a result. Consistent hashing normally keeps one account on one shard; during shard movement, version the owner and merge interval state before switching reads. Trade-off: waiting longer improves correctness for late events but increases result latency.',
+        'For fraud blocking or customer rewards, I would keep the exact result because a wrong streak changes a real decision. For a dashboard, a bounded time horizon or sampled estimate may be acceptable. I would compare streaming output with a periodic exact batch job and monitor late events, duplicates, state size, and disagreement rate. Trade-off: exactness costs storage and reconciliation work, while approximation lowers cost but needs a visible error contract.'
+      ],
+      4: [
+        'I would first define whether the service counts over all history or a fixed or sliding window, and whether timestamps use event time or processing time. Internally, a running prefix sum lets us count earlier prefixes equal to currentPrefix minus k. The response should include the window boundaries and input version so the count is reproducible. Trade-off: keeping all historical prefix counts is exact but unbounded, while a fixed window bounds memory.',
+        'Partition state by tenant and entity so unrelated streams do not share one hot map. For a bounded window, expire prefix sums when they leave the window and keep counts rather than a set because the same prefix can occur many times. Add tenant quotas and spill cold state if necessary. Trade-off: strict quotas protect the service from one tenant, but they may force delayed or approximate answers for that tenant.',
+        'Use a wide integer type and validate input ranges because prefix sums can overflow even when individual values look small. Late events should create a corrected result version rather than silently changing an old answer. A nightly batch calculation can act as the source of truth and expose drift. Trade-off: provisional streaming answers are fast, while waiting for the lateness window gives stronger finality but slower alerts.'
+      ],
+      11: [
+        'I would explain that the algorithm measures geometric volume above a sampled 1-D profile; it is not automatically a physical drainage model. The API must define units, sample spacing, missing heights, noise handling, and what happens beyond the two endpoints. It should return the profile version and assumptions with the estimate. Trade-off: a simple model is fast and repeatable, but higher physical fidelity requires more data and domain modeling.',
+        'Each partition can calculate local information, but it cannot finalize water without knowing the highest wall to its left and right. I would run one distributed pass to propagate left maxima and another to propagate right maxima, then let each partition compute its contribution locally. The coordinator sums the results. Trade-off: two metadata passes add coordination and latency, but avoid moving the full profile to one machine.',
+        'I would not reuse the 1-D two-pointer solution directly. A real terrain cell can drain in several directions, so a boundary-first 2-D flood algorithm is a better geometric baseline, and rainfall, soil, and drains may require a hydrology simulator. Trade-off: the 2-D or physical model is more credible but much more expensive; the 1-D result is useful only as a clearly labeled screening estimate.'
+      ],
+      12: [
+        'I would define tokenization before discussing the algorithm: case folding, punctuation, stemming, repeated query terms, and whether a window may cross sentence boundaries. A sliding window over normalized token positions then finds the smallest valid excerpt. Return document version and offsets in a documented coordinate system. Trade-off: richer linguistic normalization improves user relevance but makes behavior harder to predict and cache.',
+        'For a one-off document, a streaming sliding window is simple and needs only the active excerpt. For repeated queries, build a positional index that maps each normalized term to its locations, then search those shorter lists instead of rescanning the document. Cache indexes by immutable document version. Trade-off: positional indexes make reads fast but consume storage and make frequent document updates more expensive.',
+        'Shard the corpus by document, let each shard return a few local candidates, and merge them at a coordinator using a deterministic ranking rule. Cache by normalized query plus corpus version, and invalidate through index-version changes rather than time alone. Trade-off: a small local top-k reduces network cost, but an overly small k can hide a globally good candidate if ranking is not perfectly decomposable.'
+      ],
+      20: [
+        'I would expose a versioned workload, deadline, allowed rate range, and safety margin. For each candidate rate, the service runs a feasibility check and binary-searches for the smallest feasible rate. The response should include the chosen rate, headroom, workload version, and the last infeasible and first feasible checks. Trade-off: the result is only as good as the workload model, so precise computation cannot compensate for poor demand estimates.',
+        'Treat each simulation as an expensive dependency call. Cache results by workload version and candidate rate, run independent simulations with bounded parallelism, and use deadlines and circuit breakers. A timeout should be treated conservatively rather than as success because it would corrupt the search boundary. Trade-off: more parallel calls reduce latency but increase simulator load and can amplify an outage.',
+        'Repeat noisy measurements and compare confidence bounds instead of one raw value. Sample several rates first to confirm that observed feasibility is roughly monotonic, then add a safety margin to the chosen rate. If monotonicity fails, stop and use a coarse scan or human review. Trade-off: conservative bounds overprovision capacity, while aggressive bounds save cost but raise the chance of missing the SLA.'
+      ],
+      22: [
+        'I would model each ordered unit of work, its expected cost, whether it can be split, and why order must be preserved. The service returns m contiguous boundaries, predicted load per worker, and the model version. It should also include data locality or capacity differences if workers are not identical. Trade-off: optimizing only the largest load is simple, but it can produce expensive data movement or poor locality.',
+        'For planned jobs or slowly changing demand, recomputing the global partition gives a clean and predictable answer. For rapidly changing traffic, use an online heuristic that moves only the worst boundaries, then run a periodic full rebalance. Version every assignment so workers agree on ownership. Trade-off: frequent global optimization improves balance but causes churn; local adjustment is stable but can accumulate skew.',
+        'I would turn the objective into a policy: peak load plus penalties for state movement, broken locality, and assignment changes. Reserve headroom for forecast error and hot partitions. Then compare candidate layouts using the same weighted score and explain the major cost components. Trade-off: a multi-objective score reflects production reality, but weights are subjective and need tuning and auditability.'
+      ],
+      25: [
+        'The API contract must define closed versus half-open intervals, timezone, precision, whether touching windows merge, and how invalid intervals are handled. Writes should carry idempotency keys, and the merged output should retain source IDs when users need an explanation. Trade-off: retaining full provenance improves auditability but increases storage and makes every merged interval heavier.',
+        'Process normal events in event-time order and use a watermark to decide when a merged window is provisionally complete. Very late events produce a correction version rather than rewriting history invisibly. A scheduled sort-and-merge batch verifies the stream result. Trade-off: a larger lateness window reduces corrections but delays output; a smaller window is fast but creates more revisions.',
+        'Use an ordered interval index when clients need immediate overlap queries and updates. Use periodic sort-and-merge when ingestion is heavy and consumers can wait. The index must support transactional updates so readers never observe half of a split or merge. Trade-off: the online index gives low read latency but has more complex recovery and write amplification than the batch design.'
+      ],
+      32: [
+        'I would define the result as sorted change points for the maximum active capacity at each coordinate or time. Events sharing a coordinate are processed together, and consecutive points with the same height are removed. The response includes input and output versions. Trade-off: the compressed envelope is efficient for consumers, but it does not explain contributing sources unless provenance is stored separately.',
+        'Keep every add, remove, or correction in an append-only event log. A stream processor applies events using event-time ordering and publishes immutable materialized-view versions; a correction creates a new version. Periodic replay can rebuild and verify the view. Trade-off: immutable versions and replay are reliable, but they require additional storage and delay final results until the watermark.',
+        'Canonicalize the result so the same input always produces identical change points, then cache by view version and attach source offsets or a checksum. Keep the raw event log for audit even if the public view is compressed. Trade-off: aggressive compression and caching reduce bandwidth, while preserving raw provenance costs storage but is essential for debugging disputed results.'
+      ],
+      36: [
+        'Use immutable node IDs rather than names, because names can change or repeat. Every query should select a hierarchy snapshot and define behavior for missing, moved, or disconnected nodes. Return the common ancestor, snapshot version, and optionally the two paths that justify it. Trade-off: path evidence makes answers explainable but increases response size and computation.',
+        'For a mostly static hierarchy, build an index when publishing each snapshot. Binary lifting is simpler and answers in O(log n); an Euler-tour RMQ index can answer faster but uses a more involved preprocessing structure. Measure query latency and memory before choosing. Trade-off: more preprocessing improves reads but increases publication time, memory, and the cost of rebuilding after changes.',
+        'Treat a hierarchy move as a new immutable version. Pin in-flight reads to their starting version, key caches by that version, and retire old indexes only after readers finish. Consumers that need the latest version can retry when a newer snapshot appears. Trade-off: snapshot consistency avoids mixed-tree answers, but users may briefly read an older hierarchy.'
+      ],
+      38: [
+        'Start with a small envelope containing a format identifier, schema version, payload length, and checksum. Encode node fields with stable tags and make new fields optional so old readers can skip them. Breaking changes require an explicit migration or a new major version. Trade-off: self-describing formats evolve safely but use more bytes than a tightly packed custom encoding.',
+        'Traverse iteratively and write bounded chunks rather than building one giant byte array. A checkpoint records the source version, stream offset, traversal stack, and rolling checksum; retries write chunks idempotently. The decoder applies backpressure and resumes from the last verified checkpoint. Trade-off: frequent checkpoints reduce recovery work but add metadata, writes, and implementation complexity.',
+        'Verify authentication or checksums before trusting content, then enforce maximum bytes, nodes, depth, token size, and allocation. Parse iteratively, reject malformed references, and fuzz the decoder with hostile inputs. Report errors without echoing sensitive payload data. Trade-off: strict limits protect availability and security, but can reject legitimate unusually large trees unless limits are configurable.'
+      ],
+      43: [
+        'First decide whether the number drives money or policy. Billing needs an exact median from retained values; telemetry dashboards can use a quantile sketch. The API should state the percentile, time window, sample count, method, error bound, and data version. Trade-off: exact storage and sorting are expensive at scale, while sketches are compact but intentionally approximate.',
+        'Each shard builds a mergeable sketch such as KLL or t-digest for the same window and configuration. The coordinator verifies those versions, merges the small summaries, and publishes the global result. No raw samples cross the network. Trade-off: network and memory fall dramatically, but accuracy depends on sketch choice and configuration, especially near extreme percentiles.',
+        'Define event-time windows and a watermark. Late events before finalization update the sketch; later events either create a corrected version or are counted in a batch rebuild. Deletions are difficult for many sketches, so short windows may be rebuilt. Trade-off: supporting corrections improves accuracy but weakens low-latency finality and adds operational cost.'
+      ],
+      44: [
+        'Each shard can guarantee its own order. For exact global event-time order, the merger needs a current head or watermark from every unfinished shard before emitting the next event. The API should state whether it guarantees completeness, bounded lateness, or only best effort. Trade-off: waiting for certainty preserves order but lets one slow shard delay everyone.',
+        'Give each shard a bounded input buffer and fetch asynchronously only when downstream has capacity. Store checkpointed source offsets, use stable event IDs to remove retry duplicates, and apply backoff and circuit breakers. Define whether a failed shard pauses, fails, or produces a partial result. Trade-off: larger buffers smooth jitter but consume memory and delay failure detection.',
+        'A heap is a good online choice because it keeps one candidate per active shard. Pairwise merging is simpler for local batch files and often has good sequential I/O. Upstream pre-aggregation reduces network traffic if consumers do not need raw events. Trade-off: pre-aggregation saves bandwidth and compute, but permanently removes detail and limits future queries.'
+      ],
+      49: [
+        'Define the map projection, cell resolution, four- or eight-neighbor adjacency, and treatment of missing cells before choosing an algorithm. Label components within a fixed input snapshot and return count, size metadata, and snapshot ID. Trade-off: finer resolution and diagonal connectivity may model reality better, but increase compute and can change the business meaning of a region.',
+        'Each worker labels components inside its tile and emits only pairs of component IDs that touch across tile boundaries. A coordinator unions those pairs into global IDs, then aggregates sizes and metadata. Use deterministic tile and label IDs so retries are safe. Trade-off: tiling scales the main scan, but the boundary-reconciliation phase can become a hotspot for fragmented maps.',
+        'If edits are infrequent or numerous, rebuild affected tiles or the full snapshot in batch. For mostly land additions, union-find updates components cheaply; deletions are harder because one deletion may split a region. Mark complex edits dirty and repair them asynchronously. Trade-off: incremental updates are fast for common cases, while periodic rebuilds keep correctness simple and prevent state drift.'
+      ],
+      52: [
+        'Model each valid state as an immutable ID and every allowed transition under a rules version. A breadth-first search returns the shortest sequence, while predecessor data explains each step. The API should return no-route explicitly and include the rules version. Trade-off: shortest step count is easy to explain, but may not represent safest or cheapest when transitions have different risks.',
+        'Build an index from a transition signature to matching states, which avoids comparing every pair. Version the index, update only affected buckets when states change, and cache popular endpoint pairs under the same version. Trade-off: the index makes repeated searches fast but consumes storage and increases update cost; stale caches must never cross rule versions.',
+        'Set limits on expanded states, path length, response size, and execution time, and support cancellation. Bidirectional search can reduce work for point-to-point requests. Record the number of expanded states and predecessor reasons for debugging. Trade-off: strict limits protect the service but can return timeout or unknown even when a valid long path exists.'
+      ],
+      57: [
+        'Store a versioned directed dependency graph. A scheduling request runs topological ordering and returns either a deterministic order or a concrete cycle such as A → B → C → A, plus the graph version. The cycle lets owners fix the problem. Trade-off: deterministic ordering aids reproducibility but may reduce scheduling freedom compared with choosing any available node.',
+        'A full Kahn or DFS pass is usually the starting point because it is simple, testable, and easy to rebuild. Incremental detection keeps a topological order and searches only the affected area after an edge change. Trade-off: incremental updates lower latency on huge frequently changing graphs, but add complex state and many failure cases; use them only when measurements justify it.',
+        'Give every dependency stable ownership and validate writes against an expected graph version. Serialize accepted changes through a durable log or transactional service, reject a change that creates a cycle, and publish immutable read snapshots. Trade-off: strong write ordering prevents contradictory graphs but adds latency and can reduce write availability during partitions.'
+      ],
+      59: [
+        'I would return the discovered ordering constraints, a partial or total order, confidence or coverage, and the source records that created each edge. Invalid prefixes and conflicts are explicit errors. The service should never invent relationships for characters with no evidence. Trade-off: honest partial results are less convenient for clients but avoid presenting arbitrary guesses as facts.',
+        'Accumulate incoming constraints into a candidate graph and wait for a watermark or review boundary. Validate prefixes and cycles, then publish an immutable ordering version atomically while building the next version separately. Trade-off: versioned publication gives consistent readers and rollback, but new evidence is not visible immediately.',
+        'Use a fixed tie-break, such as the smallest character among currently valid choices, so replay is deterministic. Store provenance for every graph edge and return a cycle witness when validation fails. Trade-off: provenance makes debugging and audit easy, but increases storage and may retain sensitive source information that needs access controls.'
+      ],
+      65: [
+        'Define stable node IDs, whether links are directed, and what a weight means, such as current p50 or p99 latency. Run shortest path against one graph snapshot and return the path, total estimate, snapshot version, and an explicit unreachable result. Trade-off: snapshot-based answers are reproducible, but they may already be stale in a rapidly changing network.',
+        'Cache complete shortest-path trees for hot sources and key every entry by graph version. Recompute when relevant topology or weight versions change, and precompute only for sources with enough repeated traffic. Cold requests run on demand. Trade-off: caching reduces query latency, but broad invalidation can waste substantial work when updates are frequent.',
+        'If the graph fits on one capable machine, place computation beside a replicated snapshot; this is simpler than distributed Dijkstra. If it does not fit, partition nodes, exchange relaxations, and coordinate progress while carrying the snapshot version. Trade-off: distribution increases capacity, but global coordination, failures, and stale partitions can outweigh the parallelism.'
+      ],
+      66: [
+        'The API must define whether the limit counts stops or edges, and include currency, time, availability, fare class, and connection rules. Search state may need city, stops used, and departure window, because arriving at the same city under different conditions is not equivalent. Trade-off: richer business state produces valid itineraries but increases the search space and latency.',
+        'Cache results by fare-feed version and precompute popular origins or small stop limits. Shard primarily by origin or geography but preserve cross-region edges, and bound work using the hop limit. Invalidate only routes touched by changed feeds when practical. Trade-off: selective caching is fast but complicated; coarse invalidation is safer but causes more recomputation.',
+        'Build each result from a named fare snapshot and give it a short freshness period. Before booking, call the live provider again to confirm price and seats; if that fails, return the route without claiming a confirmed fare. Trade-off: revalidation adds latency and provider load, but serving stale bookable prices damages correctness and customer trust.'
+      ],
+      76: [
+        'Define allowed movement, cell reuse, character normalization, maximum pattern length, grid size, and result limit. Associate every scan with a grid version and dictionary version so it can be repeated. These constraints also create a clear work budget. Trade-off: supporting arbitrary movement and very long patterns is flexible, but makes worst-case search too expensive for a shared service.',
+        'Build each pattern set into an immutable trie and cache it by a content hash. Many scans can share that trie; a new dictionary version is built beside the old one and activated through a pointer switch. Trade-off: prebuilt tries reduce repeated search work, but large dictionaries consume memory and version overlap temporarily doubles it.',
+        'Partition large grids with overlapping boundary halos sized to maximum pattern length, then deduplicate results using a canonical path key. Enforce deadlines, expanded-state quotas, and cancellation, and record pruning metrics. Trade-off: halos are operationally simple but duplicate work; passing exact cross-boundary search state saves duplication but is much harder to implement safely.'
+      ],
+      77: [
+        'Create a domain adapter that declares variables, allowed values, constraints, and an objective, while the engine owns search, propagation, cancellation, and result reporting. Validate and version both the problem definition and solver configuration. Trade-off: a generic interface enables reuse, but domain-specific solvers can be much faster and easier to tune.',
+        'Expand the first few search levels into uniquely identified prefixes and place them on a work queue. Workers search one prefix independently, and work stealing handles uneven subtrees; retrying the same prefix is safe and deduplicated. Trade-off: finer tasks improve balance but increase queue, serialization, and coordination overhead.',
+        'Checkpoint the remaining task queue, solver version, random seed, and partial results. Add CPU and memory quotas, cancellation, deterministic mode, and metrics such as nodes explored per second and prune rate. Trade-off: checkpointing and observability make long jobs recoverable, but reduce raw search throughput and require careful compatibility across solver upgrades.'
+      ],
+      82: [
+        'Model available denomination inventory, fees, and the real objective: fewest items, lowest fee, or a policy preference. Produce a candidate plan, then reserve the chosen inventory using an idempotent transaction before confirming it. Trade-off: transactional reservation prevents overselling, but locks inventory while the request completes and can reduce throughput.',
+        'Publish denomination and policy rules as immutable versions. Precompute dynamic-programming tables for common amount ranges under each stable version and cache by amount plus inventory class. Build a new table before switching versions. Trade-off: precomputation gives very fast reads, but frequent rule or inventory changes invalidate tables and consume memory.',
+        'Read inventory under a consistent version, attempt an atomic reservation, and retry planning if that version changed. The API must explicitly choose whether no exact solution means rejection, nearest feasible value, or manual handling. Trade-off: retries preserve correctness under concurrency, but heavy contention raises latency; holding reservations longer improves success rate but reduces availability.'
+      ],
+      85: [
+        'Define Unicode normalization, case handling, token boundaries, operation costs, and an acceptance threshold before computing distance. Domain-specific substitutions, such as common name variants, can receive lower cost. Return score, policy version, and an edit alignment. Trade-off: customized costs improve domain accuracy but make scores harder to compare across products or policy versions.',
+        'Do not compare every string with every other string. First use a high-recall candidate index such as character n-grams or phonetic keys, then run exact edit distance only on the small candidate set. Shard and cache that index. Trade-off: aggressive filtering improves latency, but any candidate filter can miss a true match, so recall must be measured.',
+        'Return the edits or aligned characters that caused the score, and treat user-visible characters as Unicode grapheme clusters rather than raw bytes. Version normalization and weights, canary changes, and monitor false matches across important populations. Trade-off: explanations and correct Unicode improve trust, but add compute, storage, and privacy considerations.'
+      ],
+      90: [
+        'Accept an immutable checkpoint snapshot and define each allowed jump or recovery action. Return whether the destination is reachable, the minimum action count, one deterministic path, and the snapshot and policy versions. A no-route result should explain the furthest reachable checkpoint. Trade-off: returning a path and explanation is more useful than a count, but creates a larger contract to validate and maintain.',
+        'Cache plans by input version and invalidate them when a changed checkpoint can affect the chosen suffix. For modest arrays, full recomputation is usually safer and cheap; only build incremental summaries after measuring a real bottleneck. Trade-off: serving a labeled stale plan improves availability, but may be unsafe for actions, while strict freshness increases recomputation and latency.',
+        'Use a stable tie-break so equal solutions produce the same path. Attach the reachable range that justified each step, simulate the final plan against the same snapshot, and persist the validation result before execution. Trade-off: explanation and validation add work, but they greatly reduce nondeterministic behavior and unsafe execution.'
+      ],
+      93: [
+        'Translate the story into a precise policy: a higher rating than an adjacent person requires more allocation, equal ratings impose no rule, and the initial objective is minimum total. Define ordering scope, caps, and budget constraints, then version the policy. Trade-off: extra business constraints make the policy realistic but may make the original minimum solution infeasible.',
+        'If the full ordered population is available, a batch calculation gives a globally minimal answer. A streaming service can issue provisional allocations, but a later neighbor may force corrections; settle results after a watermark or batch boundary. Trade-off: streaming reduces initial latency, while batch processing provides stronger optimality and fewer corrections.',
+        'Add hysteresis or a penalty for changing an existing allocation so small rating changes do not cause churn. Return reason codes, input and policy versions, and audit aggregate outcomes for fairness. Trade-off: stability is better for users and operations, but it may spend more resources than the mathematically minimal allocation.'
+      ],
+      100: [
+        'Define what each bar and its width represent, how missing samples are treated, and why area corresponds to sustained capacity. The service should return start, end, limiting height, area, and source version. This lets an operator understand the result. Trade-off: a simple rectangle is explainable, but it may hide short spikes or other shapes that matter operationally.',
+        'Maintain the monotonic stack as stream state and checkpoint it with the last committed input offset and best result. Make ingestion idempotent so replay does not duplicate samples. A watermark or end marker finalizes unresolved bars. Trade-off: frequent checkpoints shorten recovery but add write overhead; infrequent checkpoints improve throughput but require more replay.',
+        'Process by event time and allow corrections within a bounded window. A corrected height recomputes the affected segment and publishes a new result version; very old corrections trigger a batch rebuild or an explicit ignored-late metric. Trade-off: long correction windows improve accuracy but increase retained state and recomputation, while short windows give clearer freshness.'
+      ],
+      101: [
+        'Define what rows, columns, and a healthy cell mean and how raw measurements become a binary value. Return rectangle coordinates, area, limiting criteria, and matrix snapshot so the operational placement decision is clear. Trade-off: a hard health threshold makes the algorithm simple, but loses information near the threshold and can make results unstable.',
+        'Order rows by event time and keep one running height per column, so memory is O(columns) rather than the whole matrix. Checkpoint that vector and last row offset. If columns are partitioned, a coordinator must combine boundary profiles for rectangles that cross partitions. Trade-off: central column state is simpler; distributing it scales width but adds difficult boundary merging.',
+        'Publish immutable matrix snapshots. A late correction creates a new snapshot and recomputes from the nearest earlier checkpoint or zero boundary rather than mutating a published answer silently. Mark results provisional until the input window closes. Trade-off: versioned correction is auditable, but retains multiple snapshots and may delay a final answer.'
+      ],
+      107: [
+        'Build the dictionary into an immutable trie artifact, validate counts and checksums, and deploy it under a version. Canary the new version, switch traffic with an atomic pointer, and keep the previous artifact warm for rollback. Every scan reports its dictionary version. Trade-off: side-by-side versions make rollout safe but temporarily increase memory and operational complexity.',
+        'Give each worker a grid tile plus a halo large enough for the maximum word length, so any crossing match is fully visible somewhere. Deduplicate with a key containing dictionary version, word ID, start coordinate, and path. Trade-off: halos are simple and fault-isolated, but duplicate data and search work near every boundary.',
+        'Cap grid, word, dictionary, result, and expanded-state sizes; support cancellation and per-tenant quotas. Trie prefix pruning and removing exhausted branches reduce work. Monitor branches explored, prune rate, cache hits, timeouts, and duplicates. Trade-off: hard limits protect shared capacity, but some valid pathological requests return incomplete or rejected results and must be labeled clearly.'
+      ],
+      109: [
+        'First validate that this specialized relationship is worth an online service. If users only need periodic discovery, run a batch index job and publish versions; use online updates only when low-latency new pairs create real value. Trade-off: online serving improves freshness but adds indexes, consistency work, and on-call burden that a batch pipeline avoids.',
+        'Generate lookup keys from prefixes and reversed suffixes, then route matching keys to the same shard. Maintain an immutable base index plus a small update log and periodically compact them into a new version. Trade-off: log-structured updates keep writes cheap, but reads check multiple layers and compaction consumes temporary storage and compute.',
+        'Store a list of word IDs for each value so duplicates remain distinct, handle the empty string as a special palindromic partner, and keep tombstones for deletions until compaction. Encrypt data and derived indexes and apply retention controls. Trade-off: full correctness and privacy metadata increase index size; removing it saves space but creates wrong pairs or data-governance risk.'
+      ],
+      113: [
+        'Define get, put, and delete; whether capacity is measured by entries or bytes; whether get refreshes recency; and whether TTL is absolute or sliding. State per-key consistency and whether eviction order is global or per shard. Optionally emit eviction reasons. Trade-off: globally exact recency is intuitive but requires coordination, while shard-local LRU is scalable and usually good enough.',
+        'Use consistent hashing to assign keys, replication for node loss, and a local LRU on each shard. Coalesce concurrent requests for a hot missing key, add small near caches where safe, and warm replacements gradually after failure. Trade-off: replication and warming preserve hit rate, but consume capacity; near caches lower latency but can serve stale data.',
+        'Use single-flight loading so only one request refreshes a missing key, jitter TTLs so many keys do not expire together, and stale-while-revalidate when stale data is safe. Track hit and byte-hit ratios, latency, evictions by reason, origin QPS, and load errors. Trade-off: stale or negative caching protects the origin, but can delay visibility of newly corrected data.'
+      ],
+      114: [
+        'LFU is useful when the same keys remain popular for a long time, because repeated use protects them from eviction. It is harmful after traffic shifts because yesterday’s hot key can stay forever. Add aging, periodic decay, or a small recent-frequency window. Trade-off: decay adapts faster but may evict genuinely stable hot keys and requires more bookkeeping than LRU.',
+        'Keep exact counters only within each shard and periodically merge a compact Count-Min Sketch or similar summary for a global popularity signal. Divide or rotate counters by epoch so old traffic fades. Do not coordinate every read. Trade-off: this design scales and tolerates partitions, but frequency is approximate and hash collisions can overestimate some keys.',
+        'Expired entries should be removed without increasing frequency, and keys with equal frequency should use LRU as a deterministic tie-break. Budget memory for counters, bucket lists, and expiry metadata; after failover, rebuild approximate frequency from replicated data or new traffic. Trade-off: richer metadata improves eviction quality, but lowers effective cache capacity and makes recovery more complex.'
+      ]
+    };
+
+    const questions = rawQuestions.map((q) => ({
+      id: q[0],
+      title: q[1],
+      slug: q[2],
+      priority: Boolean(q[3]),
+      category: categories[Math.floor((q[0] - 1) / 8)],
+      url: `https://leetcode.com/problems/${q[2]}/`,
+      beforeCode: beforeCodePrompts[q[0] - 1],
+      practicalFollowup: practicalFollowups[q[0]] || '',
+      practicalFollowupAnswer: practicalFollowupAnswers[q[0]] || '',
+      followups: followups[q[0]] || [],
+      followupAnswers: followupAnswers[q[0]] || []
+    }));
+
+    const STORAGE_KEY = 'google-l6-dsa-tracker-v1';
+    const FILTER_KEY = 'google-l6-dsa-filters-v1';
+    const validStatuses = ['Not Started', 'In Progress', 'Solved', 'Needs Review'];
+    const defaultEntry = () => ({ status: 'Not Started', notes: '', updatedAt: 0 });
+    let progress = loadProgress();
+    let filters = loadFilters();
+    const expanded = new Set();
+    let toastTimer;
+
+    const elements = {
+      list: document.getElementById('questionList'),
+      empty: document.getElementById('emptyState'),
+      search: document.getElementById('searchInput'),
+      category: document.getElementById('categoryFilter'),
+      status: document.getElementById('statusFilter'),
+      sort: document.getElementById('sortFilter'),
+      priority: document.getElementById('priorityFilter'),
+      count: document.getElementById('resultCount'),
+      toast: document.getElementById('toast')
+    };
+
+    function normalizeEntry(value) {
+      const base = defaultEntry();
+      if (!value || typeof value !== 'object') return base;
+      return {
+        status: validStatuses.includes(value.status) ? value.status : base.status,
+        notes: typeof value.notes === 'string' ? value.notes : '',
+        updatedAt: Number(value.updatedAt) || 0
+      };
+    }
+
+    function loadProgress() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        return Object.fromEntries(questions.map((q) => [q.id, normalizeEntry(parsed[q.id])]));
+      } catch (error) {
+        return Object.fromEntries(questions.map((q) => [q.id, defaultEntry()]));
+      }
+    }
+
+    function loadFilters() {
+      const defaults = { search: '', category: 'All', status: 'All', sort: 'curriculum', priority: false };
+      try {
+        return { ...defaults, ...JSON.parse(localStorage.getItem(FILTER_KEY) || '{}') };
+      } catch (error) { return defaults; }
+    }
+
+    function saveProgress() { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+    function saveFilters() { localStorage.setItem(FILTER_KEY, JSON.stringify(filters)); }
+    function today() {
+      const now = new Date();
+      const pad = (value) => String(value).padStart(2, '0');
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    }
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+    }
+
+    function answerMarkup(value) {
+      const marker = ' Trade-off: ';
+      const markerIndex = value.indexOf(marker);
+      if (markerIndex === -1) return `<p>${escapeHtml(value)}</p>`;
+      const explanation = value.slice(0, markerIndex);
+      const tradeoff = value.slice(markerIndex + marker.length);
+      return `<p>${escapeHtml(explanation)}</p><p class="answer-tradeoff"><strong>Trade-off:</strong> ${escapeHtml(tradeoff)}</p>`;
+    }
+
+    function statusOptions(current) {
+      return validStatuses.map((status) => `<option${status === current ? ' selected' : ''}>${status}</option>`).join('');
+    }
+
+    function renderStats() {
+      const entries = questions.map((q) => progress[q.id]);
+      const solved = entries.filter((entry) => entry.status === 'Solved').length;
+      const prioritySolved = questions.filter((q) => q.priority && progress[q.id].status === 'Solved').length;
+      const inProgress = entries.filter((entry) => entry.status === 'In Progress').length;
+      const needsReview = entries.filter((entry) => entry.status === 'Needs Review').length;
+      const percent = Math.round((solved / questions.length) * 100);
+      document.getElementById('solvedStat').textContent = solved;
+      document.getElementById('priorityStat').textContent = `${prioritySolved}/30`;
+      document.getElementById('inProgressStat').textContent = inProgress;
+      document.getElementById('needsReviewStat').textContent = needsReview;
+      document.getElementById('progressText').textContent = `${solved} of 120 solved · ${percent}%`;
+      document.getElementById('progressFill').style.width = `${percent}%`;
+      const progressbar = document.querySelector('[role="progressbar"]');
+      progressbar.setAttribute('aria-valuenow', solved);
+      progressbar.setAttribute('aria-valuetext', `${solved} of 120 questions solved`);
+    }
+
+    function filteredQuestions() {
+      const needle = filters.search.trim().toLowerCase();
+      const list = questions.filter((q) => {
+        const entry = progress[q.id];
+        return (!needle || `${q.title} ${q.category}`.toLowerCase().includes(needle))
+          && (filters.category === 'All' || q.category === filters.category)
+          && (filters.status === 'All' || entry.status === filters.status)
+          && (!filters.priority || q.priority);
+      });
+      const statusRank = { 'Needs Review': 0, 'In Progress': 1, 'Not Started': 2, 'Solved': 3 };
+      if (filters.sort === 'priority') list.sort((a, b) => Number(b.priority) - Number(a.priority) || a.id - b.id);
+      if (filters.sort === 'attention') list.sort((a, b) => statusRank[progress[a.id].status] - statusRank[progress[b.id].status] || a.id - b.id);
+      if (filters.sort === 'updated') list.sort((a, b) => progress[b.id].updatedAt - progress[a.id].updatedAt || a.id - b.id);
+      return list;
+    }
+
+    function questionTemplate(q) {
+      const entry = progress[q.id];
+      const isOpen = expanded.has(q.id);
+      const followupContent = `<div class="guidance-stack">
+        <aside class="before-code-box"><h3>Before you code</h3><p>${escapeHtml(q.beforeCode)}</p></aside>
+        ${!q.priority && q.practicalFollowup ? `<aside class="practical-followup-box"><h3>Interviewer follow-up</h3><p>${escapeHtml(q.practicalFollowup)}</p><small>Focus on assumptions, feasibility, and trade-offs—no implementation required.</small><details class="answer-details"><summary><span class="show-answer-label">Show potential answer</span><span class="hide-answer-label">Hide potential answer</span></summary>${answerMarkup(q.practicalFollowupAnswer)}</details></aside>` : ''}
+        ${q.priority ? `<aside class="followup-box"><h3>L6 follow-up prompts</h3><p>Use these after the core solution to discuss production design and trade-offs.</p><ol>${q.followups.map((prompt, index) => `<li><span>${escapeHtml(prompt)}</span><details class="answer-details"><summary><span class="show-answer-label">Show potential answer</span><span class="hide-answer-label">Hide potential answer</span></summary>${answerMarkup(q.followupAnswers[index])}</details></li>`).join('')}</ol></aside>` : ''}
+      </div>`;
+      return `
+        <article class="question-card${q.priority ? ' priority' : ''}" data-id="${q.id}" data-status="${entry.status}">
+          <div class="question-row">
+            <div class="identity">
+              <div class="question-number">${q.id}</div>
+              <div>
+                <a class="question-title" href="${q.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(q.title)} <span class="external" aria-label="opens LeetCode in a new tab">↗</span></a>
+                <div class="meta"><span class="badge">${escapeHtml(q.category)}</span>${q.priority ? '<span class="badge priority-badge">★ L6 priority</span>' : ''}</div>
+              </div>
+            </div>
+            <div class="field"><label for="status-${q.id}">Status</label><select class="control status-control" id="status-${q.id}" data-field="status" data-value="${entry.status}" aria-label="Status for ${escapeHtml(q.title)}">${statusOptions(entry.status)}</select></div>
+            <div class="field details-field"><label>Notes & follow-ups</label><button class="button small details-button" type="button" aria-expanded="${isOpen}" aria-controls="details-${q.id}">${isOpen ? 'Close' : 'Details'}</button></div>
+          </div>
+          <div class="question-details" id="details-${q.id}"${isOpen ? '' : ' hidden'}>
+            <div class="details-grid">
+              <div>
+                <label class="section-label" for="notes-${q.id}">Notes, mistakes & invariants</label>
+                <textarea class="control" id="notes-${q.id}" data-field="notes" aria-label="Notes and mistakes for ${escapeHtml(q.title)}" placeholder="What failed? Which invariant or edge case will you remember next time?">${escapeHtml(entry.notes)}</textarea>
+              </div>
+              ${followupContent}
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function renderList() {
+      const list = filteredQuestions();
+      elements.list.innerHTML = list.map(questionTemplate).join('');
+      elements.empty.classList.toggle('show', list.length === 0);
+      elements.count.innerHTML = `<strong>${list.length}</strong> ${list.length === 1 ? 'question' : 'questions'} shown`;
+    }
+
+    function renderAll() { renderStats(); renderList(); }
+
+    function updateEntry(id, field, value) {
+      const entry = progress[id];
+      if (!entry) return;
+      entry[field] = value;
+      entry.updatedAt = Date.now();
+      saveProgress();
+      renderStats();
+    }
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      elements.toast.textContent = message;
+      elements.toast.classList.add('show');
+      toastTimer = setTimeout(() => elements.toast.classList.remove('show'), 2500);
+    }
+
+    categories.forEach((category) => elements.category.insertAdjacentHTML('beforeend', `<option>${escapeHtml(category)}</option>`));
+    elements.search.value = filters.search;
+    elements.category.value = categories.includes(filters.category) ? filters.category : 'All';
+    elements.status.value = validStatuses.includes(filters.status) ? filters.status : 'All';
+    elements.sort.value = ['curriculum', 'priority', 'attention', 'updated'].includes(filters.sort) ? filters.sort : 'curriculum';
+    elements.priority.checked = Boolean(filters.priority);
+
+    let searchTimer;
+    elements.search.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      filters.search = elements.search.value;
+      saveFilters();
+      searchTimer = setTimeout(renderList, 120);
+    });
+
+    [['category', elements.category], ['status', elements.status], ['sort', elements.sort]].forEach(([key, element]) => {
+      element.addEventListener('change', () => { filters[key] = element.value; saveFilters(); renderList(); });
+    });
+    elements.priority.addEventListener('change', () => { filters.priority = elements.priority.checked; saveFilters(); renderList(); });
+
+    document.getElementById('clearFilters').addEventListener('click', () => {
+      filters = { search: '', category: 'All', status: 'All', sort: 'curriculum', priority: false };
+      elements.search.value = '';
+      elements.category.value = 'All';
+      elements.status.value = 'All';
+      elements.sort.value = 'curriculum';
+      elements.priority.checked = false;
+      saveFilters();
+      renderList();
+    });
+
+    elements.list.addEventListener('click', (event) => {
+      const button = event.target.closest('.details-button');
+      if (!button) return;
+      const card = button.closest('.question-card');
+      const id = Number(card.dataset.id);
+      const panel = card.querySelector('.question-details');
+      const opening = button.getAttribute('aria-expanded') !== 'true';
+      button.setAttribute('aria-expanded', String(opening));
+      button.textContent = opening ? 'Close' : 'Details';
+      panel.hidden = !opening;
+      opening ? expanded.add(id) : expanded.delete(id);
+    });
+
+    elements.list.addEventListener('input', (event) => {
+      const field = event.target.dataset.field;
+      if (!field) return;
+      const card = event.target.closest('.question-card');
+      updateEntry(Number(card.dataset.id), field, event.target.value);
+    });
+
+    elements.list.addEventListener('change', (event) => {
+      const card = event.target.closest('.question-card');
+      if (!card) return;
+      const id = Number(card.dataset.id);
+      if (event.target.dataset.field === 'status') {
+        event.target.dataset.value = event.target.value;
+        card.dataset.status = event.target.value;
+        if (filters.status !== 'All' || filters.sort === 'attention') renderList();
+      }
+    });
+
+    document.getElementById('exportButton').addEventListener('click', () => {
+      const payload = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), progress }, null, 2);
+      const url = URL.createObjectURL(new Blob([payload], { type: 'application/json' }));
+      const link = Object.assign(document.createElement('a'), { href: url, download: `google-l6-dsa-progress-${today()}.json` });
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast('Backup exported');
+    });
+
+    document.getElementById('importButton').addEventListener('click', () => document.getElementById('importFile').click());
+    document.getElementById('importFile').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const parsed = JSON.parse(await file.text());
+        const imported = parsed.progress || parsed;
+        if (!imported || typeof imported !== 'object') throw new Error('Invalid backup');
+        progress = Object.fromEntries(questions.map((q) => [q.id, normalizeEntry(imported[q.id])]));
+        saveProgress();
+        renderAll();
+        showToast('Backup restored');
+      } catch (error) { showToast('Could not restore that file'); }
+      event.target.value = '';
+    });
+
+    document.getElementById('resetButton').addEventListener('click', () => {
+      if (!window.confirm('Reset all statuses and notes? This cannot be undone unless you exported a backup.')) return;
+      progress = Object.fromEntries(questions.map((q) => [q.id, defaultEntry()]));
+      expanded.clear();
+      saveProgress();
+      renderAll();
+      showToast('All progress reset');
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
