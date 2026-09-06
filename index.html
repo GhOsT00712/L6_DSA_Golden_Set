@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A self-contained progress tracker for the 120-question Google L6 DSA curriculum.">
+  <meta name="description" content="A self-contained tracker for a curated 120-question Staff/L6 DSA curriculum for Google, Meta, Amazon, Microsoft, Apple, Netflix, Uber, and other leading technology companies.">
   <link rel="icon" href="favicon.ico" sizes="any">
   <title>L6 DSA Golden Set</title>
   <style>
@@ -540,7 +540,7 @@
         <div>
           <p class="eyebrow">120-question curriculum</p>
           <h1>L6 DSA Golden Set</h1>
-          <p class="subtitle">Ask one crisp question before coding, capture the mistake, and rehearse the constraint changes that turn a LeetCode solution into an L6 discussion.</p>
+          <p class="subtitle">Prepare for Staff/L6 interviews at Google, Meta, Amazon, Microsoft, Apple, Netflix, Uber, and other leading technology companies—ask one crisp question before coding, capture the mistake, and rehearse the constraint changes that turn a LeetCode solution into a senior-level discussion.</p>
         </div>
         <section class="progress-panel" aria-labelledby="progressTitle">
           <div class="progress-heading">
@@ -1323,7 +1323,7 @@
     document.getElementById('exportButton').addEventListener('click', () => {
       const payload = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), progress }, null, 2);
       const url = URL.createObjectURL(new Blob([payload], { type: 'application/json' }));
-      const link = Object.assign(document.createElement('a'), { href: url, download: `google-l6-dsa-progress-${today()}.json` });
+      const link = Object.assign(document.createElement('a'), { href: url, download: `l6-dsa-golden-set-progress-${today()}.json` });
       document.body.appendChild(link);
       link.click();
       link.remove();

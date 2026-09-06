@@ -1,6 +1,6 @@
 # L6 DSA Golden Set
 
-A self-contained progress tracker for a curated 120-question Google L6 DSA interview curriculum.
+A self-contained progress tracker for a curated 120-question Staff/L6 DSA interview curriculum for Google, Meta, Amazon, Microsoft, Apple, Netflix, Uber, and other leading technology companies.
 
 ## Features
 
