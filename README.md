@@ -5,8 +5,9 @@ A self-contained progress tracker for a curated 120-question Staff/L6 DSA interv
 ## Features
 
 - 120 categorized questions with LeetCode links
-- 30 high-priority L6 questions
+- 30 high-priority L6 questions selected for strong production and system-design extensions
 - Before-coding clarification prompts
+- Submission-aware coaching cues derived from the latest reviewed LeetCode approaches
 - Production, scale, concurrency, and trade-off follow-ups
 - Expandable potential answers
 - Status tracking, notes, search, filters, and progress statistics
