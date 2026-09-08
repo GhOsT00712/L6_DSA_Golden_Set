@@ -437,17 +437,6 @@
       color: #e1edbd;
     }
     .practical-followup-box .answer-details .answer-tradeoff strong { color: #d4e99a; }
-    .submission-lens {
-      margin: 9px 0 10px !important;
-      padding: 8px 10px;
-      border-left: 3px solid #7aa2f7;
-      border-radius: 0 7px 7px 0;
-      background: rgba(122, 162, 247, .08);
-      color: #bfd0f7 !important;
-      font-size: 12px !important;
-      line-height: 1.45;
-    }
-
     .empty {
       display: none;
       margin-top: 18px;
@@ -643,97 +632,6 @@
       [105,'Implement Trie (Prefix Tree)','implement-trie-prefix-tree'],[106,'Design Add and Search Words Data Structure','design-add-and-search-words-data-structure'],[107,'Word Search II','word-search-ii',1],[108,'Replace Words','replace-words'],[109,'Palindrome Pairs','palindrome-pairs'],[110,'Longest Duplicate Substring','longest-duplicate-substring'],[111,'Shortest Palindrome','shortest-palindrome'],[112,'Find the Index of the First Occurrence in a String','find-the-index-of-the-first-occurrence-in-a-string'],
       [113,'LRU Cache','lru-cache',1],[114,'LFU Cache','lfu-cache',1],[115,'Insert Delete GetRandom O(1)','insert-delete-getrandom-o1'],[116,'All O`one Data Structure','all-oone-data-structure'],[117,'Time Based Key-Value Store','time-based-key-value-store',1],[118,'Snapshot Array','snapshot-array',1],[119,'Range Module','range-module',1],[120,'Stock Price Fluctuation','stock-price-fluctuation',1]
     ];
-
-    const submissionApproaches = {
-      1: "Latest accepted Java submission uses a hash map; the follow-up builds from those concrete choices.",
-      2: "Latest accepted Java submission uses a hash map and sorting; the follow-up builds from those concrete choices.",
-      4: "Latest accepted Java submission performs one pass with a running prefix sum and a frequency map; the follow-up tests how that exact state behaves under windows, tenants, and late events.",
-      5: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      6: "Latest accepted Java submission uses a hash map; the follow-up builds from those concrete choices.",
-      8: "Latest accepted Java submission uses dynamic programming or memoization; the follow-up builds from those concrete choices.",
-      9: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      10: "Latest accepted Java submission uses sorting; the follow-up builds from those concrete choices.",
-      11: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      12: "Latest accepted Java submission maintains a mutable deficit map and shrinks a sliding window once every required character is covered; the follow-up extends those semantics to indexed documents and distributed search.",
-      13: "Latest accepted Java submission uses a hash map; the follow-up builds from those concrete choices.",
-      14: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      15: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      16: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      17: "Latest accepted Java submission uses binary search; the follow-up builds from those concrete choices.",
-      18: "Latest accepted Java submission uses binary search; the follow-up builds from those concrete choices.",
-      19: "Latest accepted Java submission uses binary search; the follow-up builds from those concrete choices.",
-      20: "Latest accepted Java submission uses binary search; the follow-up builds from those concrete choices.",
-      21: "Latest accepted Java submission uses binary search; the follow-up builds from those concrete choices.",
-      22: "Latest accepted Java submission binary-searches the maximum allowed partition sum and uses a greedy feasibility scan; the follow-up challenges the monotonic load model with real worker costs and changing demand.",
-      23: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      24: "Latest accepted Java submission uses binary search; the follow-up builds from those concrete choices.",
-      25: "Latest accepted Java submission sorts by start time and merges overlaps in one scan; the follow-up asks when that batch representation should become a versioned online interval service.",
-      26: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      27: "Latest accepted Java submission uses sorting; the follow-up builds from those concrete choices.",
-      29: "Latest accepted Java submission uses sorting; the follow-up builds from those concrete choices.",
-      32: "Latest accepted Java submission coordinate-compresses endpoints and updates every covered segment, a clear but potentially quadratic approach; the follow-up focuses on sweep-line materialization, corrections, and scale.",
-      33: "Latest accepted Java submission uses a queue; the follow-up builds from those concrete choices.",
-      34: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      35: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      36: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      37: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      38: "Latest accepted Java submission uses recursive preorder encoding with underscore delimiters and # null markers, then rebuilds from a token queue; the follow-up examines durable formats, malformed input, and streaming recovery.",
-      39: "Latest accepted Java submission uses a hash map and depth-first search; the follow-up builds from those concrete choices.",
-      40: "Latest accepted Java submission uses a hash map, a queue and sorting; the follow-up builds from those concrete choices.",
-      41: "Latest accepted Java submission uses a priority queue and a queue; the follow-up builds from those concrete choices.",
-      42: "Latest Java submission uses a frequency map and a size-k min-heap, but the most recent attempt did not pass the full judge; the follow-up should probe contract, tie, and distributed-count assumptions.",
-      43: "Latest accepted Java submission keeps an exact insert-only median with two balanced heaps; the follow-up explores windows, deletions, shard aggregation, and approximate percentiles.",
-      44: "Latest accepted Java submission keeps one head per list in a min-heap and reuses the input nodes; the follow-up maps this to ordered log merging, backpressure, and partial-source failure.",
-      45: "Latest accepted Java submission uses a hash map, a priority queue and a queue; the follow-up builds from those concrete choices.",
-      48: "Latest accepted Java submission uses a hash map; the follow-up builds from those concrete choices.",
-      49: "Latest accepted Java submission recursively floods four-directional neighbors and mutates visited land to water; the follow-up tests stack safety, tile boundaries, snapshots, and concurrent readers.",
-      50: "Latest accepted Java submission uses depth-first search; the follow-up builds from those concrete choices.",
-      51: "Latest accepted Java submission uses depth-first search; the follow-up builds from those concrete choices.",
-      52: "Latest accepted Java submission runs one-sided breadth-first search, generates every one-letter mutation, and removes visited dictionary entries; the follow-up examines indexing, bidirectional search, and service limits.",
-      53: "Latest accepted Java submission uses a hash map, a hash set and depth-first search; the follow-up builds from those concrete choices.",
-      55: "Latest accepted Java submission uses a stack or deque; the follow-up builds from those concrete choices.",
-      56: "Latest accepted Java submission uses a queue; the follow-up builds from those concrete choices.",
-      57: "Latest accepted Java submission uses Kahn’s algorithm with an indegree array and queue and returns only feasibility; the follow-up expands the contract to cycle evidence, ownership, and incremental graph updates.",
-      58: "Latest accepted Java submission uses a hash map, a hash set and depth-first search; the follow-up builds from those concrete choices.",
-      59: "Latest accepted Java submission uses a hash map, a hash set and depth-first search; the follow-up builds from those concrete choices.",
-      60: "Latest accepted Java submission uses a hash map, a hash set, sorting and depth-first search; the follow-up builds from those concrete choices.",
-      62: "Latest accepted Java submission uses a hash map and depth-first search; the follow-up builds from those concrete choices.",
-      65: "Latest accepted Java submission uses Dijkstra with an adjacency map, best-distance array, and stale-entry check in a priority queue; the follow-up tests graph versions, hot-source caching, and distributed topology.",
-      66: "Latest Java submission uses recursive path enumeration with a global best-price bound and timed out; the follow-up should first address bounded-state shortest-path choices before production scale.",
-      67: "Latest accepted Java submission uses a priority queue and a queue; the follow-up builds from those concrete choices.",
-      70: "Latest accepted Java submission uses a queue; the follow-up builds from those concrete choices.",
-      73: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      74: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      75: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      76: "Latest accepted Java submission uses depth-first search; the follow-up builds from those concrete choices.",
-      78: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      79: "Latest accepted Java submission uses depth-first search; the follow-up builds from those concrete choices.",
-      80: "Latest Java submission checks whether one target-sum subset exists, but it does not track k disjoint groups and the most recent attempt failed; the follow-up should probe state completeness before optimization.",
-      81: "Latest accepted Java submission uses dynamic programming or memoization; the follow-up builds from those concrete choices.",
-      82: "Latest accepted Java submission develops memoized and tabulated variants and ends with amount-indexed dynamic-programming state; the follow-up adds inventory, policy versions, and transactional reservation.",
-      83: "Latest accepted Java submission uses dynamic programming or memoization; the follow-up builds from those concrete choices.",
-      84: "Latest accepted Java submission uses a hash set and dynamic programming or memoization; the follow-up builds from those concrete choices.",
-      85: "Latest accepted Java submission uses top-down recursion with a two-dimensional memo table for insert, delete, and replace; the follow-up turns that exact pairwise score into a large-corpus matching service.",
-      88: "Latest accepted Java submission uses dynamic programming or memoization; the follow-up builds from those concrete choices.",
-      89: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      90: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      91: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      92: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      93: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      94: "Latest accepted Java submission uses sorting; the follow-up builds from those concrete choices.",
-      97: "Latest accepted Java submission uses a hash map and a stack or deque; the follow-up builds from those concrete choices.",
-      98: "Latest accepted Java submission uses a stack or deque; the follow-up builds from those concrete choices.",
-      99: "Latest accepted Java submission uses a stack or deque; the follow-up builds from those concrete choices.",
-      100: "Latest accepted Java submission uses a monotonic index stack and a zero-height sentinel to finalize remaining bars; the follow-up examines what an unbounded, corrected metric stream can finalize and checkpoint.",
-      102: "Latest accepted Java submission uses a stack or deque; the follow-up builds from those concrete choices.",
-      103: "Latest accepted Java submission uses a stack or deque; the follow-up builds from those concrete choices.",
-      105: "Latest accepted Java submission uses a trie; the follow-up builds from those concrete choices.",
-      106: "Latest accepted Java submission uses a trie; the follow-up builds from those concrete choices.",
-      107: "Latest accepted Java submission builds a lowercase trie, mutates board cells during DFS, deduplicates with a hash set, and prints inside the hot path; the follow-up covers immutable versions, concurrency, quotas, and production-safe observability.",
-      112: "Latest accepted Java submission was reviewed; the follow-up builds from its concrete assumptions and state model.",
-      113: "Latest accepted Java submission combines a hash map with a doubly linked recency list for exact O(1) local operations; the follow-up adds TTL, sharding, hot keys, failure recovery, and concurrency.",
-      115: "Latest accepted Java submission uses a hash map; the follow-up builds from those concrete choices."
-    };
 
     const beforeCodePrompts = [
       "Can I return any valid pair, and may the same value appear at different indices?",
@@ -1270,7 +1168,6 @@
       category: categories[Math.floor((q[0] - 1) / 8)],
       url: `https://leetcode.com/problems/${q[2]}/`,
       beforeCode: beforeCodePrompts[q[0] - 1],
-      submissionApproach: submissionApproaches[q[0]] || '',
       practicalFollowup: practicalFollowups[q[0]] || '',
       practicalFollowupAnswer: practicalFollowupAnswers[q[0]] || '',
       followups: followups[q[0]] || [],
@@ -1387,8 +1284,8 @@
       const isOpen = expanded.has(q.id);
       const followupContent = `<div class="guidance-stack">
         <aside class="before-code-box"><h3>Before you code</h3><p>${escapeHtml(q.beforeCode)}</p></aside>
-        ${!q.priority && q.practicalFollowup ? `<aside class="practical-followup-box"><h3>Interviewer follow-up</h3>${q.submissionApproach ? `<p class="submission-lens">${escapeHtml(q.submissionApproach)}</p>` : ''}<p>${escapeHtml(q.practicalFollowup)}</p><small>Focus on assumptions, feasibility, and trade-offs—no implementation required.</small><details class="answer-details"><summary><span class="show-answer-label">Show potential answer</span><span class="hide-answer-label">Hide potential answer</span></summary>${answerMarkup(q.practicalFollowupAnswer)}</details></aside>` : ''}
-        ${q.priority ? `<aside class="followup-box"><h3>L6 follow-up prompts</h3>${q.submissionApproach ? `<p class="submission-lens">${escapeHtml(q.submissionApproach)}</p>` : ''}<p>Use these after the core solution to discuss production design and trade-offs.</p><ol>${q.followups.map((prompt, index) => `<li><span>${escapeHtml(prompt)}</span><details class="answer-details"><summary><span class="show-answer-label">Show potential answer</span><span class="hide-answer-label">Hide potential answer</span></summary>${answerMarkup(q.followupAnswers[index])}</details></li>`).join('')}</ol></aside>` : ''}
+        ${!q.priority && q.practicalFollowup ? `<aside class="practical-followup-box"><h3>Interviewer follow-up</h3><p>${escapeHtml(q.practicalFollowup)}</p><small>Focus on assumptions, feasibility, and trade-offs—no implementation required.</small><details class="answer-details"><summary><span class="show-answer-label">Show potential answer</span><span class="hide-answer-label">Hide potential answer</span></summary>${answerMarkup(q.practicalFollowupAnswer)}</details></aside>` : ''}
+        ${q.priority ? `<aside class="followup-box"><h3>L6 follow-up prompts</h3><p>Use these after the core solution to discuss production design and trade-offs.</p><ol>${q.followups.map((prompt, index) => `<li><span>${escapeHtml(prompt)}</span><details class="answer-details"><summary><span class="show-answer-label">Show potential answer</span><span class="hide-answer-label">Hide potential answer</span></summary>${answerMarkup(q.followupAnswers[index])}</details></li>`).join('')}</ol></aside>` : ''}
       </div>`;
       return `
         <article class="question-card${q.priority ? ' priority' : ''}" data-id="${q.id}" data-status="${entry.status}">
